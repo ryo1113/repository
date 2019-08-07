@@ -93,10 +93,9 @@ void CGame::Update()
 	{
 		CEnemy::Create(D3DXVECTOR3(1700.0f, (float)random(100, 670), 0.0f), CEnemy::ENEMYTYPE_PART2, nCount / 300.0f);
 	}
-
-	if (CEnemy::GetNumEnemy() == 0)
+	if (nCount % 200 == 0)
 	{
-		CRenderer::SetFade(CManager::MODE_RESULT);
+		CEnemy::Create(D3DXVECTOR3(1700.0f, (float)random(100, 670), 0.0f), CEnemy::ENEMYTYPE_PART1, 2.0f);
 	}
 
 #ifdef _DEBUG

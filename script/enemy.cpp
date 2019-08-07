@@ -196,7 +196,7 @@ void CEnemy::MoveSpeedEnemy()
 	switch (m_Type)
 	{
 	case ENEMYTYPE_PART1:
-		m_move += D3DXVECTOR3(0.0f, cos(m_nTime * D3DX_PI / 90.0f) * 1.0f, 0.0f) * m_fSpeed;
+		m_move += D3DXVECTOR3(-1.0f, cos(m_nTime * D3DX_PI / 30.0f) * 0.5f, 0.0f) * m_fSpeed;
 		break;
 
 	case ENEMYTYPE_PART2:
