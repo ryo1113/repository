@@ -166,6 +166,8 @@ void CBullet::Update()
 			pEnemy->HitEnemy();
 
 			this->Uninit();
+
+			break;
 		}
 	}
 

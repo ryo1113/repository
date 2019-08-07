@@ -13,7 +13,7 @@
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-#define	MAX_DIGIT		(8)
+#define SCORE_MAX		(6)
 
 //======================================================================================================================
 // プロトタイプ宣言
@@ -22,11 +22,10 @@
 //======================================================================================================================
 // メンバ変数
 //======================================================================================================================
-CNumber *CScore::m_apNumber[MAX_DIGIT] = {};
-int CScore::m_nScore = 0;
+int CScore::m_nScore[6] = { 3500,3000,2500,2000,5500,1000 };
 
 // コンストラクタ
-CScore::CScore() : CScene::CScene(OBJTYPE_SCORE)
+CScore::CScore() : CScene::CScene(OBJTYPE_UI)
 {
 
 }
@@ -40,7 +39,7 @@ CScore::~CScore()
 //======================================================================================================================
 // 生成
 //======================================================================================================================
-CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size)
+CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size, int nNum)
 {
 	CScore *pScore;
 
@@ -52,6 +51,8 @@ CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size)
 	}
 
 	pScore->Init();
+
+	pScore->Display(nNum);
 
 	return pScore;
 }
@@ -67,6 +68,13 @@ void CScore::Init()
 		{
 			m_apNumber[nCnt]->Init();
 		}
+	}
+
+	QuickSort(m_nScore, 0, SCORE_MAX - 1);
+	
+	if (CManager::GetMode() == CManager::MODE_GAME)
+	{
+		m_nScore[5] = 0;
 	}
 }
 
@@ -108,27 +116,84 @@ void CScore::Draw()
 	}
 }
 
+//======================================================================================================================
+// スコア処理
+//======================================================================================================================
 void CScore::SetScore(int nScore)
 {
-	m_nScore = nScore;
+	m_nScore[5] = nScore;
 
-	for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
-	{
-		int nDigit = m_nScore % (int)pow(10, nCnt + 1.0f) / (int)pow(10, nCnt);
-
-		m_apNumber[nCnt]->SetNum(nDigit);
-	}
+	Display(5);
 }
 
 void CScore::AddScore(int nNumber)
 {
-	m_nScore += nNumber;
+	m_nScore[5] += nNumber;
 
+	Display(5);
+}
+
+//======================================================================================================================
+// 表示処理
+//======================================================================================================================
+void CScore::Display(int Cnt)
+{
 	for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
 	{
-		int nDigit = m_nScore % (int)pow(10, nCnt + 1.0f) / (int)pow(10, nCnt);
+		int nDigit = m_nScore[Cnt] % (int)pow(10, nCnt + 1.0f) / (int)pow(10, nCnt);
 
 		m_apNumber[nCnt]->SetNum(nDigit);
 	}
 }
 
+//======================================================================================================================
+// クイックソートによる並び替え処理
+//======================================================================================================================
+void CScore::QuickSort(int nScore[], int nLeft, int nRight)
+{
+	int	nLeftHold = nLeft;
+
+	int nRightHold = nRight;
+
+	int nQivot = nScore[nLeft];
+
+	while (nLeft < nRight)
+	{
+		while ((nScore[nRight] <= nQivot) && (nLeft < nRight))
+		{
+			nRight--;
+		}
+
+		if (nLeft != nRight)
+		{
+			nScore[nLeft] = nScore[nRight];
+			nLeft++;
+		}
+
+		while ((nScore[nLeft] >= nQivot) && (nLeft < nRight))
+		{
+			nLeft++;
+		}
+
+		if (nLeft != nRight)
+		{
+			nScore[nRight] = nScore[nLeft];
+			nRight--;
+		}
+	}
+	nScore[nLeft] = nQivot;
+
+	nQivot = nLeft;
+
+	nLeft = nLeftHold;
+	nRight = nRightHold;
+
+	if (nLeft < nQivot)
+	{
+		QuickSort(nScore, nLeft, nQivot - 1);
+	}
+	if (nRight > nQivot)
+	{
+		QuickSort(nScore, nQivot + 1, nRight);
+	}
+}

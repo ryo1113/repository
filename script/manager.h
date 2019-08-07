@@ -11,7 +11,8 @@
 // インクルードファイル
 //===========================================================================================================
 #include "main.h"
-#include "renderer.h"
+
+class CRenderer;
 
 class CPad;
 class CKeyboard;
@@ -24,6 +25,21 @@ class CMouse;
 //===========================================================================================================
 // クラス定義
 //===========================================================================================================
+class CModeBase
+{
+public:
+	CModeBase() {}
+	~CModeBase() {}
+
+	virtual void Init() = 0;
+	virtual void Uninit() = 0;
+	virtual void Update() = 0;
+	virtual void Draw() = 0;
+
+private:
+
+};
+
 class CManager
 {
 public:
@@ -41,9 +57,25 @@ public:
 	static CPad *GetInputPad();
 	static CMouse *GetInputMouse();
 
+	enum MODE
+	{//画面モードの種類
+		MODE_TITLE = 0,
+		MODE_TUTORIAL,
+		MODE_GAME,
+		MODE_RESULT,
+		MODE_RANKING,
+		MODE_MAX
+	};
+
+	static void SetMode(MODE mode);
+	static MODE GetMode();
+
 protected:
 
 private:
+	static MODE m_Mode;		//現在のモード
+	static CModeBase *m_pMode;
+
 	static CRenderer *m_pRenderer;
 
 	static CKeyboard *m_pInputKeyboard;

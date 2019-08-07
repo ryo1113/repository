@@ -1,227 +1,159 @@
 //======================================================================================================================
 //
-// 敵の処理[enemy.cpp]
+// ゲーム処理 [game.cpp]
 // Author:RYO KANDA
 //
 //======================================================================================================================
-#include "manager.h"
-#include "enemy.h"
-
 #include "game.h"
 
+#include "camera.h"
+
+#include "bg.h"
 #include "bullet.h"
+#include "effect.h"
+#include "enemy.h"
 #include "explosion.h"
+#include "player.h"
+
 #include "score.h"
+#include <time.h>
+#include <random>
+
+#ifdef _DEBUG
+#include "keyboard.h"
+#include "pad.h"
+#endif
 
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-#define ENEMY_TYPE		(2)
-
-#define ENEMY_SPEED		(5.0f)
-#define ENEMY_JUMPSPEED	(0.9f)
-
-//======================================================================================================================
-// プロトタイプ宣言
-//======================================================================================================================
+#define ENEMY_
 
 //======================================================================================================================
 // メンバ変数
 //======================================================================================================================
-LPDIRECT3DTEXTURE9 CEnemy::m_pTexture[ENEMY_TYPE] = {};
-int CEnemy::nNumEnemy = 0;
+CScore *CGame::m_Score = NULL;
 
-// コンストラクタ
-CEnemy::CEnemy() : CScene2D::CScene2D(OBJTYPE_ENEMY)
+//======================================================================================================================
+// ゲーム生成
+//======================================================================================================================
+CGame *CGame::Create()
 {
-	nNumEnemy++;
-}
+	CGame *pGame;
 
-// デストラクタ
-CEnemy::~CEnemy()
-{
+	pGame = new CGame;
 
-}
+	pGame->Init();
 
-HRESULT CEnemy::Load()
-{
-	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
-
-	//テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/enemy_00.png", &m_pTexture[0]);
-	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/enemy_01.png", &m_pTexture[1]);
-
-	for (int nCnt = 0; nCnt < ENEMYTYPE_MAX; nCnt++)
-	{
-		if (m_pTexture[nCnt] == NULL)
-		{
-			return -1;
-		}
-	}
-
-	return S_OK;
-}
-
-void CEnemy::Unload()
-{
-	for (int nCnt = 0; nCnt < ENEMYTYPE_MAX; nCnt++)
-	{
-		//テクスチャの開放
-		if (m_pTexture[nCnt] != NULL)
-		{
-			m_pTexture[nCnt]->Release();
-			m_pTexture[nCnt] = NULL;
-		}
-	}
+	return pGame;
 }
 
 //======================================================================================================================
-// 生成
+// 初期化処理
 //======================================================================================================================
-CEnemy *CEnemy::Create(D3DXVECTOR3 pos, ENEMYTYPE type, float fspeed)
+void CGame::Init()
 {
-	CEnemy *pEnemy;
+	CBg::Create(0, 0.0005f);
 
-	pEnemy = new CEnemy;
+	CPlayer::Create();
 
-	pEnemy->SetPos(pos);
-	pEnemy->m_Type = type;
+	CEnemy::Create(D3DXVECTOR3(640.0f, 200.0f, 0.0f), CEnemy::ENEMYTYPE_PART1);
+	CEnemy::Create(D3DXVECTOR3(1000.0f, 500.0f, 0.0f), CEnemy::ENEMYTYPE_PART1);
+	CEnemy::Create(D3DXVECTOR3(1240.0f, 300.0f, 0.0f), CEnemy::ENEMYTYPE_PART1);
 
-	pEnemy->Init();
+	CEnemy::Create(D3DXVECTOR3(1700.0f, 300.0f, 0.0f), CEnemy::ENEMYTYPE_PART2);
 
-	pEnemy->m_fSpeed = fspeed;
-	pEnemy->BindTexture(m_pTexture[type]);
+	m_Score = CScore::Create(D3DXVECTOR3(1250.0f, 60.0f, 0.0f), D3DXVECTOR3(60.0f, 100.0f, 0.0f), 5);
 
-	return pEnemy;
+	CCamera::Create();
+
+	srand((unsigned int)time(NULL));
+	nCount = 0;
+
 }
 
 //======================================================================================================================
-// 初期化
+// 終了処理
 //======================================================================================================================
-void CEnemy::Init()
+void CGame::Uninit()
 {
-	CScene2D::Init();
 
-	if (m_Type == ENEMYTYPE_PART1)
-	{
-		SetSize(D3DXVECTOR3(150.0f, 200.0f, 0.0f));
-		SetTextureAnimationTex(2, 4);
-	}
-	else if (m_Type == ENEMYTYPE_PART2)
-	{
-		SetSize(D3DXVECTOR3(300.0f, 150.0f, 0.0f));
-	}
-
-	m_nTime = rand() % 360;
-	m_fSpeed = 1.0f;
-}
-
-//======================================================================================================================
-// プレイヤの開放処理
-//======================================================================================================================
-void CEnemy::Uninit()
-{
-	nNumEnemy--;
-
-	CScene2D::Uninit();
-
-	this->Release();
 }
 
 //======================================================================================================================
 // 更新処理
 //======================================================================================================================
-void CEnemy::Update()
+void CGame::Update()
 {
-	if (m_Type == ENEMYTYPE_PART1)
+	CCamera::MoveCamera(D3DXVECTOR3(-0.2f, 0.0f, 0.0f));
+
+	nCount++;
+
+	if (nCount % 240 == 0)
 	{
-		SetTextureAnimation(5, false);
+		CEnemy::Create(D3DXVECTOR3(1700.0f, (float)random(100, 670), 0.0f), CEnemy::ENEMYTYPE_PART2, nCount / 300.0f);
 	}
 
-	D3DXVECTOR3 pos = GetPos();
-
-	MoveSpeedEnemy();
-	
-	m_move.x -= m_move.x * 1 / 3;
-	m_move.y -= m_move.y * 1 / 3;
-
-	// 向きの処理
-	Rot();
-
-	if (fabsf(m_move.x) < 0.1f)
+	if (CEnemy::GetNumEnemy() == 0)
 	{
-		m_move.x = 0;
-	}
-	if (fabsf(m_move.y) < 0.1f)
-	{
-		m_move.y = 0;
+		CRenderer::SetFade(CManager::MODE_RESULT);
 	}
 
-	SetPos(pos + m_move);
+#ifdef _DEBUG
+	CKeyboard *pKey = CManager::GetInputKeyboard();
+	CPad *pPad = CManager::GetInputPad();
 
-	if (GetPos().y + GetSize().y <= 0.0f)
+	if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
 	{
-		Uninit();
+		CRenderer::SetFade(CManager::MODE_RESULT);
 	}
+#endif
 }
 
 //======================================================================================================================
 // 描画処理
 //======================================================================================================================
-void CEnemy::Draw()
+void CGame::Draw()
 {
-	CScene2D::Draw();
+	
 }
 
 //======================================================================================================================
-// 被弾処理
+// ゲーム状態のスコア追加
 //======================================================================================================================
-void CEnemy::HitEnemy()
+void CGame::AddGameScore(int nScore)
 {
-	// 爆発生成
-	CExplosion::Create(GetPos());
-
-	CGame::AddGameScore(3000);
-
-	this->Uninit();
+	m_Score->AddScore(nScore);
 }
 
 //======================================================================================================================
-// 移動処理
+// ゲーム状態の設定
 //======================================================================================================================
-void CEnemy::MoveSpeedEnemy()
+void CGame::SetGameState(GAMESTATE state)
 {
-	m_nTime++;
-
-	switch (m_Type)
-	{
-	case ENEMYTYPE_PART1:
-		m_move += D3DXVECTOR3(0.0f, cos(m_nTime * D3DX_PI / 90.0f) * 1.0f, 0.0f) * m_fSpeed;
-		break;
-
-	case ENEMYTYPE_PART2:
-		m_move += D3DXVECTOR3(-3.0f, cos(m_nTime * D3DX_PI / 90.0f) * 1.0f, 0.0f) * m_fSpeed;
-		break;
-	}
+	g_GameState = state;
+	g_nCounterGameState = 0;
 }
 
 //======================================================================================================================
-// 弾の発射
+// ゲーム状態の取得
 //======================================================================================================================
-void CEnemy::BulletShot()
+CGame::GAMESTATE CGame::GetGameState()
 {
-	CKeyboard *pKey = CManager::GetInputKeyboard();
-
-	//if (pKey->GetKeyboardPress(DIK_SPACE))
-	{
-
-	}
+	return g_GameState;
 }
 
 //======================================================================================================================
-// 敵数の取得
+// ランダム数値の取得
 //======================================================================================================================
-int CEnemy::GetNumEnemy()
+int CGame::random(int min, int max)
 {
-	return nNumEnemy;
+	// 乱数生成器
+	static std::mt19937_64 create(0);
+
+	// 一様分布整数 (int) の分布生成器
+	std::uniform_int_distribution<int> nGet(min, max);
+
+	// 乱数を生成
+	return nGet(create);
 }

@@ -1,11 +1,11 @@
 //======================================================================================================================
 //
-// 敵の処理[enemy.h]
+// 処理[word.h]
 // Author:RYO KANDA
 //
 //======================================================================================================================
-#ifndef _ENEMY_H_
-#define _ENEMY_H_
+#ifndef _WORD_H_
+#define _WORD_H_
 
 #include "scene2D.h"
 
@@ -20,52 +20,39 @@
 //======================================================================================================================
 // クラス定義
 //======================================================================================================================
-class CEnemy : public CScene2D
+class CWord : public CScene2D
 {
 public:
-	CEnemy();
-	~CEnemy();
+	CWord();
+	~CWord();
 
-	enum ENEMYTYPE
+	enum WORD_TYPE
 	{
-		ENEMYTYPE_PART1,
-		ENEMYTYPE_PART2,
-		ENEMYTYPE_MAX
-	};
-
-	enum ENEMYSTATE
-	{//自キャラ状態
-		ENEMYSTATE_NORMAL = 0,			//通常
-		ENEMYSTATE_DEATH,				//死んだとき
-		ENEMYSTATE_MAX
+		WORD_TITLE,
+		WORD_RESULT,
+		WORD_ENTER,
+		WORD_RANK,
+		WORD_MAX
 	};
 
 	static HRESULT Load();
 	static void Unload();
-	static CEnemy *Create(D3DXVECTOR3 pos, ENEMYTYPE type, float fspeed = 1.0f);
-
+	static CWord *Create(WORD_TYPE type, D3DXVECTOR3 pos, D3DXVECTOR3 size);
 
 	void Init();
 	void Uninit();
 	void Update();
 	void Draw();
 
-	void HitEnemy();
-	static int GetNumEnemy();
-
 private:
-	void MoveSpeedEnemy();
-	void BulletShot();
+	static LPDIRECT3DTEXTURE9 m_pTexture[WORD_MAX];
 
-	static LPDIRECT3DTEXTURE9 m_pTexture[];
+	D3DXVECTOR3 m_texpos;
+	WORD_TYPE m_Type;
 
-	static int nNumEnemy;
+	float fFlashα;
 
-	D3DXVECTOR3 m_move;
-
-	ENEMYTYPE m_Type;
-	int m_nTime;
-	float m_fSpeed;
+	int nCntFlash;
 };
 
 #endif

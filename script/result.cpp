@@ -1,135 +1,106 @@
 //======================================================================================================================
 //
-// 処理[bg.cpp]
+// リザルト処理 [result.cpp]
 // Author:RYO KANDA
 //
 //======================================================================================================================
-#include "manager.h"
+#include "result.h"
+
+#include "keyboard.h"
+#include "pad.h"
+
+#include "score.h"
 
 #include "bg.h"
+#include "word.h"
 
 //======================================================================================================================
 // マクロ定義
-//======================================================================================================================
-#define MAX_TEX		(1)
-
-//======================================================================================================================
-// プロトタイプ宣言
 //======================================================================================================================
 
 //======================================================================================================================
 // メンバ変数
 //======================================================================================================================
-LPDIRECT3DTEXTURE9 CBg::m_pTexture[MAX_TEX] = {};
 
-// コンストラクタ
-CBg::CBg() : CScene2D::CScene2D(OBJTYPE_BG)
-{
-
-}
-
-// デストラクタ
-CBg::~CBg()
-{
-
-}
-
-HRESULT CBg::Load()
-{
-	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
-
-	//テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/bg_00.png", &m_pTexture[0]);
-
-	for (int nCnt = 0; nCnt < MAX_TEX; nCnt++)
-	{
-		if (m_pTexture[nCnt] == NULL)
-		{
-			return -1;
-		}
-	}
-
-	return S_OK;
-}
-
-void CBg::Unload()
-{
-	for (int nCnt = 0; nCnt < MAX_TEX; nCnt++)
-	{
-		//テクスチャの開放
-		if (m_pTexture[nCnt] != NULL)
-		{
-			m_pTexture[nCnt]->Release();
-			m_pTexture[nCnt] = NULL;
-		}
-	}
-}
 
 //======================================================================================================================
-// 生成
+// リザルト生成
 //======================================================================================================================
-CBg *CBg::Create(int nType, float fSpeed)
+CResult *CResult::Create()
 {
-	CBg *pBg;
+	CResult *pResult;
 
-	pBg = new CBg;
+	pResult = new CResult;
 
-	pBg->SetPos(D3DXVECTOR3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.0f));
-	pBg->Init();
-	pBg->BindTexture(m_pTexture[nType]);
+	pResult->Init();
 
-	pBg->SetSpeed(fSpeed);
-
-	return pBg;
+	return pResult;
 }
 
 //======================================================================================================================
 // 初期化
 //======================================================================================================================
-void CBg::Init()
+void CResult::Init()
 {
-	m_texpos = GetPos();
-	m_move = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+	m_FadeCount = 300;
 
-	SetSize(D3DXVECTOR3(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f));
-	CScene2D::Init();
+	CBg::Create(0, 0.005f);
+	CWord::Create(CWord::WORD_RESULT, D3DXVECTOR3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 10.0f, 0.0f), D3DXVECTOR3(500.0f, 100.0f, 0.0f));
 
-	this->BindMoveTex(&m_texpos);
+	CWord::Create(CWord::WORD_RANK, D3DXVECTOR3(SCREEN_WIDTH / 4.0f, SCREEN_HEIGHT / 1.8f, 0.0f), D3DXVECTOR3(150.0f, 500.0f, 0.0f));
+
+	for (int nCnt = 0; nCnt < 5; nCnt++)
+	{
+		CScore::Create(D3DXVECTOR3(SCREEN_WIDTH / 1.4f, SCREEN_HEIGHT / 3.8f + nCnt * 105.0f, 0.0f), D3DXVECTOR3(60.0f, 90.0f, 0.0f), nCnt);
+	}
 }
 
 //======================================================================================================================
 // 開放処理
 //======================================================================================================================
-void CBg::Uninit()
+void CResult::Uninit()
 {
-	CScene2D::Uninit();
+
 }
 
 //======================================================================================================================
 // 更新処理
 //======================================================================================================================
-void CBg::Update()
+void CResult::Update()
 {
-	MoveSpeed(m_fSpeed);
+	CKeyboard *pKey = CManager::GetInputKeyboard();
+	CPad *pPad = CManager::GetInputPad();
+
+	if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
+	{
+		CRenderer::SetFade(CManager::MODE_TITLE);
+	}
+	if (--m_FadeCount == 0)
+	{
+		CRenderer::SetFade(CManager::MODE_TITLE);
+	}
 }
 
 //======================================================================================================================
 // 描画処理
 //======================================================================================================================
-void CBg::Draw()
+void CResult::Draw()
 {
-	CScene2D::Draw();
-}
 
-void CBg::SetSpeed(float fSpeed)
-{
-	m_fSpeed = fSpeed;
 }
 
 //======================================================================================================================
-// 移動処理
+// リザルト状態の設定
 //======================================================================================================================
-void CBg::MoveSpeed(float fSpeed)
+void CResult::SetResultState(RESULTSTATE state)
 {
-	m_texpos += m_move * fSpeed;
+	g_ResultState = state;
+}
+
+//======================================================================================================================
+// リザルト状態の取得
+//======================================================================================================================
+CResult::RESULTSTATE CResult::GetResultState(void)
+{
+	return g_ResultState;
 }

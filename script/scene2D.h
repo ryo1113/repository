@@ -13,6 +13,8 @@
 #include "main.h"
 #include "scene.h"
 
+#include "renderer.h"
+
 //===========================================================================================================
 // ƒ‰ƒCƒuƒ‰ƒŠ‚ÌƒŠƒ“ƒN
 //===========================================================================================================
@@ -38,7 +40,6 @@ public:
 	virtual void Draw();
 
 	void SetCollar(D3DXCOLOR collar);
-
 	void SetPos(D3DXVECTOR3 pos);
 	void SetRot(D3DXVECTOR3 rot);
 	void SetScale(D3DXVECTOR3 scale);
@@ -69,6 +70,7 @@ protected:
 	D3DXVECTOR3 GetRot();
 	D3DXVECTOR3 GetSize();
 	D3DXVECTOR3 GetScale();
+	D3DXCOLOR GetCollar();
 	float GetLength();
 
 	void Rot();

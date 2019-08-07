@@ -12,6 +12,7 @@
 #include "mouse.h"
 
 #include "bullet.h"
+#include "enemy.h"
 #include "camera.h"
 
 //======================================================================================================================
@@ -87,7 +88,7 @@ CPlayer *CPlayer::Create()
 void CPlayer::Init()
 {
 	SetSize(D3DXVECTOR3(150.0f, 70.0f, 0.0f));
-	SetPos(D3DXVECTOR3(600, 300, 0.0f));
+	SetPos(D3DXVECTOR3(200, 300, 0.0f));
 
 	CScene2D::Init();
 }
@@ -98,6 +99,8 @@ void CPlayer::Init()
 void CPlayer::Uninit()
 {
 	CScene2D::Uninit();
+
+	CScene::Release();
 }
 
 //======================================================================================================================
@@ -133,6 +136,27 @@ void CPlayer::Update()
 	pos += m_move;
 
 	SetPos(pos);
+
+	for (int nCnt = 0; nCnt < MAX_2D; nCnt++)
+	{
+		CScene *pScene = GetScene(OBJTYPE_ENEMY, nCnt);
+
+		if (!pScene)
+			continue;
+
+		CEnemy *pEnemy = (CEnemy*)pScene;
+
+		if (HitShapeCollision(pEnemy))
+		{
+			pEnemy->HitEnemy();
+
+			this->Uninit();
+
+			CRenderer::SetFade(CManager::MODE_RESULT);
+
+			break;
+		}
+	}
 }
 
 //======================================================================================================================

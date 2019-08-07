@@ -1,47 +1,46 @@
 //======================================================================================================================
 //
-// 処理[bg.cpp]
+// 処理[word.cpp]
 // Author:RYO KANDA
 //
 //======================================================================================================================
 #include "manager.h"
 
-#include "bg.h"
+#include "word.h"
 
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-#define MAX_TEX		(1)
-
-//======================================================================================================================
-// プロトタイプ宣言
-//======================================================================================================================
+#define FLASH_CONT	(40)
 
 //======================================================================================================================
 // メンバ変数
 //======================================================================================================================
-LPDIRECT3DTEXTURE9 CBg::m_pTexture[MAX_TEX] = {};
+LPDIRECT3DTEXTURE9 CWord::m_pTexture[WORD_MAX] = {};
 
 // コンストラクタ
-CBg::CBg() : CScene2D::CScene2D(OBJTYPE_BG)
+CWord::CWord() : CScene2D::CScene2D(OBJTYPE_UI)
 {
 
 }
 
 // デストラクタ
-CBg::~CBg()
+CWord::~CWord()
 {
 
 }
 
-HRESULT CBg::Load()
+HRESULT CWord::Load()
 {
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	//テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/bg_00.png", &m_pTexture[0]);
+	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/title.png", &m_pTexture[0]);
+	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/result.png", &m_pTexture[1]);
+	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/enter.png", &m_pTexture[2]); 
+	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/ranking.png", &m_pTexture[3]);
 
-	for (int nCnt = 0; nCnt < MAX_TEX; nCnt++)
+	for (int nCnt = 0; nCnt < WORD_MAX; nCnt++)
 	{
 		if (m_pTexture[nCnt] == NULL)
 		{
@@ -52,9 +51,9 @@ HRESULT CBg::Load()
 	return S_OK;
 }
 
-void CBg::Unload()
+void CWord::Unload()
 {
-	for (int nCnt = 0; nCnt < MAX_TEX; nCnt++)
+	for (int nCnt = 0; nCnt < WORD_MAX; nCnt++)
 	{
 		//テクスチャの開放
 		if (m_pTexture[nCnt] != NULL)
@@ -68,39 +67,40 @@ void CBg::Unload()
 //======================================================================================================================
 // 生成
 //======================================================================================================================
-CBg *CBg::Create(int nType, float fSpeed)
+CWord *CWord::Create(WORD_TYPE type, D3DXVECTOR3 pos, D3DXVECTOR3 size)
 {
-	CBg *pBg;
+	CWord *pWord;
 
-	pBg = new CBg;
+	pWord = new CWord;
 
-	pBg->SetPos(D3DXVECTOR3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.0f));
-	pBg->Init();
-	pBg->BindTexture(m_pTexture[nType]);
+	pWord->SetPos(pos);
+	pWord->SetSize(size);
 
-	pBg->SetSpeed(fSpeed);
+	pWord->Init();
+	pWord->m_Type = type;
+	pWord->BindTexture(m_pTexture[type]);
 
-	return pBg;
+	return pWord;
 }
 
 //======================================================================================================================
 // 初期化
 //======================================================================================================================
-void CBg::Init()
+void CWord::Init()
 {
-	m_texpos = GetPos();
-	m_move = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-
-	SetSize(D3DXVECTOR3(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f));
 	CScene2D::Init();
 
+	nCntFlash = 0;
+	fFlashα = 1.0f / FLASH_CONT;
+
+	m_texpos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	this->BindMoveTex(&m_texpos);
 }
 
 //======================================================================================================================
 // 開放処理
 //======================================================================================================================
-void CBg::Uninit()
+void CWord::Uninit()
 {
 	CScene2D::Uninit();
 }
@@ -108,28 +108,28 @@ void CBg::Uninit()
 //======================================================================================================================
 // 更新処理
 //======================================================================================================================
-void CBg::Update()
+void CWord::Update()
 {
-	MoveSpeed(m_fSpeed);
+	if (this->m_Type == WORD_ENTER)
+	{
+		D3DXCOLOR col = GetCollar();
+
+		col.a -= fFlashα;
+
+		if (++nCntFlash == FLASH_CONT)
+		{
+			nCntFlash = 0;
+			fFlashα *= -1;
+		}
+
+		SetCollar(col);
+	}
 }
 
 //======================================================================================================================
 // 描画処理
 //======================================================================================================================
-void CBg::Draw()
+void CWord::Draw()
 {
 	CScene2D::Draw();
-}
-
-void CBg::SetSpeed(float fSpeed)
-{
-	m_fSpeed = fSpeed;
-}
-
-//======================================================================================================================
-// 移動処理
-//======================================================================================================================
-void CBg::MoveSpeed(float fSpeed)
-{
-	m_texpos += m_move * fSpeed;
 }

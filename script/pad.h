@@ -4,8 +4,8 @@
 // Author:RYO KANDA
 //
 //===========================================================================================================
-#ifndef _JOYPAD_H_
-#define _JOYPAD_H_
+#ifndef _PAD_H_
+#define _PAD_H_
 
 #define _CRT_SECURE_NO_WARNINGS
 

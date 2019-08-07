@@ -62,23 +62,4 @@ typedef struct
 	D3DXVECTOR2	tex;	
 } VERTEX_3D;
 
-//typedef enum
-//{//画面モードの種類
-//	MODE_TITLE = 0,
-//	MODE_TUTORIAL,
-//	MODE_GAME,
-//	MODE_RESULT,
-//	MODE_RANKING,
-//	MODE_MAX
-//} MODE;
-
-//===========================================================================================================
-// プロトタイプ宣言
-//===========================================================================================================
-//LPDIRECT3DDEVICE9 GetDevice(void);
-//
-//void SetMode(MODE mode);
-//MODE *GetMode(void);
-//MODE *GetModeOld(void);
-
 #endif

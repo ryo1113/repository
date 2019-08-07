@@ -201,8 +201,8 @@ void CScene2D::Marginalize(float *frot)
 //======================================================================================================================
 bool CScene2D::UnlookJudge()
 {
-	if (m_pos.x + m_fLength * m_scale.x < 0.0f ||
-		m_pos.x - m_fLength * m_scale.x > SCREEN_WIDTH ||
+	if (m_pos.x + m_fLength * m_scale.x < 0.0f		   - CCamera::GetCamera()->x ||
+		m_pos.x - m_fLength * m_scale.x > SCREEN_WIDTH - CCamera::GetCamera()->x ||
 		m_pos.y + m_fLength * m_scale.y < 0.0f ||
 		m_pos.y - m_fLength * m_scale.y > SCREEN_HEIGHT)
 	{
@@ -254,6 +254,10 @@ D3DXVECTOR3 CScene2D::MoveMouse(D3DXVECTOR3 pos)
 //======================================================================================================================
 // Set
 //======================================================================================================================
+
+//------------------------------------------------------------------------------
+//	カラー
+//------------------------------------------------------------------------------
 void CScene2D::SetCollar(D3DXCOLOR collar)
 {
 	this->m_col = collar;
@@ -264,7 +268,7 @@ void CScene2D::SetCollar(D3DXCOLOR collar)
 //------------------------------------------------------------------------------
 void CScene2D::BindTexture(LPDIRECT3DTEXTURE9 Texture)
 {
-	m_pTexture = Texture;
+	this->m_pTexture = Texture;
 }
 
 //------------------------------------------------------------------------------
@@ -346,10 +350,10 @@ void CScene2D::SetVertexTex(VERTEX_2D * pVtx)
 void CScene2D::SetVertexTex_Scroll(VERTEX_2D * pVtx)
 {
 	//テクスチャの設定
-	pVtx[0].tex = D3DXVECTOR2(this->pMoveTex->x + 1.0f, this->pMoveTex->y + 0.0f);
-	pVtx[1].tex = D3DXVECTOR2(this->pMoveTex->x + 0.0f, this->pMoveTex->y + 0.0f);
-	pVtx[2].tex = D3DXVECTOR2(this->pMoveTex->x + 1.0f, this->pMoveTex->y + 1.0f);
-	pVtx[3].tex = D3DXVECTOR2(this->pMoveTex->x + 0.0f, this->pMoveTex->y + 1.0f);
+	pVtx[0].tex = D3DXVECTOR2(this->pMoveTex->x + 0.0f, this->pMoveTex->y + 0.0f);
+	pVtx[1].tex = D3DXVECTOR2(this->pMoveTex->x + 1.0f, this->pMoveTex->y + 0.0f);
+	pVtx[2].tex = D3DXVECTOR2(this->pMoveTex->x + 0.0f, this->pMoveTex->y + 1.0f);
+	pVtx[3].tex = D3DXVECTOR2(this->pMoveTex->x + 1.0f, this->pMoveTex->y + 1.0f);
 }
 
 
@@ -454,6 +458,14 @@ D3DXVECTOR3 CScene2D::GetSize()
 D3DXVECTOR3 CScene2D::GetScale()
 {
 	return m_scale;
+}
+
+//------------------------------------------------------------------------------
+// カラー
+//------------------------------------------------------------------------------
+D3DXCOLOR CScene2D::GetCollar()
+{
+	return m_col;
 }
 
 //------------------------------------------------------------------------------

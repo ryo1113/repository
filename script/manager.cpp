@@ -5,6 +5,7 @@
 //
 //======================================================================================================================
 #include "manager.h"
+#include "renderer.h"
 #include "scene2D.h"
 
 #include "input.h"
@@ -12,7 +13,12 @@
 #include "keyboard.h"
 #include "mouse.h"
 
+#include "title.h"
+#include "game.h"
+#include "result.h"
+
 #include "number.h"
+#include "word.h"
 
 #include "bg.h"
 #include "bullet.h"
@@ -21,8 +27,6 @@
 #include "explosion.h"
 #include "player.h"
 #include "score.h"
-
-#include "camera.h"
 
 //======================================================================================================================
 // マクロ定義
@@ -44,6 +48,9 @@ CKeyboard *CManager::m_pInputKeyboard = NULL;
 CPad *CManager::m_pInputPad = NULL;
 CMouse *CManager::m_pInputMouse = NULL;
 
+CModeBase *CManager::m_pMode = new CTitle;
+CManager::MODE CManager::m_Mode = MODE_TITLE;
+
 // コンストラクタ
 CManager::CManager()
 {
@@ -54,6 +61,9 @@ CManager::~CManager()
 {
 }
 
+//======================================================================================================================
+// 初期化
+//======================================================================================================================
 HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 {
 	m_pRenderer = new CRenderer;
@@ -117,20 +127,23 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		MessageBox(hWnd, "テクスチャがありません", "Number", MB_ICONWARNING);// 確認用
 		return -1;
 	}
+	if (FAILED(CWord::Load()))
+	{
+		MessageBox(hWnd, "テクスチャがありません", "Word", MB_ICONWARNING);// 確認用
+		return -1;
+	}
 
-	CBg::Create(0, 0.0005f);
-
-	CPlayer::Create();
-
-	CEnemy::Create(D3DXVECTOR3(640.0f, 150.0f, 0.0f));
-
-	CScore::Create(D3DXVECTOR3(1250.0f, 60.0f, 0.0f), D3DXVECTOR3(60.0f, 100.0f, 0.0f));
-
-	CCamera::Create();
+	if (m_pMode)
+	{
+		m_pMode->Init();
+	}
 
 	return S_OK;
 }
 
+//======================================================================================================================
+// 終了処理
+//======================================================================================================================
 void CManager::Uninit()
 {
 	if (m_pRenderer != NULL)
@@ -168,6 +181,12 @@ void CManager::Uninit()
 		delete m_pInputMouse;
 		m_pInputMouse = NULL;
 	}
+
+	if (m_pMode)
+	{
+		m_pMode->Uninit();
+	}
+
 	// テクスチャ破棄
 	CBullet::Unload();
 	CEffect::Unload();
@@ -175,14 +194,16 @@ void CManager::Uninit()
 	CExplosion::Unload();
 	CPlayer::Unload();
 	CBg::Unload();
+	CWord::Unload();
 
 	CScene::ReleaseAll();
 }
 
+//======================================================================================================================
+// 更新処理
+//======================================================================================================================
 void CManager::Update()
 {
-	CCamera::MoveCamera(D3DXVECTOR3(-0.2f, 0.0f, 0.0f));
-
 	m_pInputKeyboard->Update();
 
 	m_pInputMouse->Update();
@@ -190,11 +211,21 @@ void CManager::Update()
 	m_pInputPad->Update();
 
 	m_pRenderer->Update();
+
+	if (m_pMode)
+	{
+		m_pMode->Update();
+	}
 }
 
 void CManager::Draw()
 {
 	m_pRenderer->Draw();
+
+	if (m_pMode)
+	{
+		m_pMode->Draw();
+	}
 }
 
 CRenderer *CManager::GetRenderer()
@@ -215,4 +246,49 @@ CPad *CManager::GetInputPad()
 CMouse *CManager::GetInputMouse()
 {
 	return m_pInputMouse;
+}
+
+//======================================================================================================================
+// モードの設定
+//======================================================================================================================
+void CManager::SetMode(MODE mode)
+{
+	if (m_pMode)
+	{
+		CScene::ReleaseAll();
+
+		delete m_pMode;
+		m_pMode = NULL;
+	}
+
+	m_Mode = mode;
+
+	switch (mode)
+	{
+	case MODE_TITLE:
+		m_pMode = CTitle::Create();
+		break;
+
+	case MODE_TUTORIAL:
+		break;
+
+	case MODE_GAME:
+		m_pMode = CGame::Create();
+		break;
+
+	case MODE_RESULT:
+		m_pMode = CResult::Create();
+		break;
+
+	case MODE_RANKING:
+		break;
+	}
+}
+
+//======================================================================================================================
+// モードの取得
+//======================================================================================================================
+CManager::MODE CManager::GetMode()
+{
+	return m_Mode;
 }

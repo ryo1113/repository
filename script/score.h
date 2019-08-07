@@ -13,10 +13,7 @@ class CNumber;
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-
-//======================================================================================================================
-// 構造体定義
-//======================================================================================================================
+#define	MAX_DIGIT		(8)
 
 //======================================================================================================================
 // クラス定義
@@ -26,25 +23,27 @@ class CScore : public CScene
 public:
 	CScore();
 	~CScore();
-
 	void Vertex(VERTEX_2D *pVtx) {}
 
-	static CScore *Create(D3DXVECTOR3 pos, D3DXVECTOR3 size);
+	static CScore *Create(D3DXVECTOR3 pos, D3DXVECTOR3 size, int nNum);
 
 	void Init();
 	void Uninit();
 	void Update();
 	void Draw();
 
-	static void SetScore(int nScore);
-	int GetScore() { return m_nScore; }
+	void SetScore(int nScore);
+	void AddScore(int nNumber);
 
-	static void AddScore(int nNumber);
+	int GetScore() { return m_nScore[6]; }
 
 private:
-	static CNumber *m_apNumber[];
+	void Display(int Cnt);
+	void QuickSort(int nScore[], int nLeft, int nRight);
 
-	static int m_nScore;
+	CNumber *m_apNumber[MAX_DIGIT];
+
+	static int m_nScore[];
 };
 
 #endif

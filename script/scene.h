@@ -20,7 +20,7 @@
 // É}ÉNÉçíËã`
 //===========================================================================================================
 #define MAX_EFFECT			(4096)
-#define MAX_BULLET			(128)
+#define MAX_BULLET			(3)
 
 #define MAX_2D		(1024)
 
@@ -40,7 +40,7 @@ public:
 	};
 
 	enum OBJTYPE
-	{// ìñÇΩÇËîªíË
+	{// ìñÇΩÇËîªíË&ï`âÊèá
 		OBJTYPE_NONE,
 		OBJTYPE_BG,
 		OBJTYPE_EFFECT,
@@ -48,7 +48,7 @@ public:
 		OBJTYPE_EXPLOSION,
 		OBJTYPE_ENEMY,
 		OBJTYPE_PLAYER,
-		OBJTYPE_SCORE,
+		OBJTYPE_UI,
 
 		OBJTYPE_MAX
 	};
