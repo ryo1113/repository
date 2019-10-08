@@ -16,10 +16,6 @@
 #include "renderer.h"
 
 //===========================================================================================================
-// ライブラリのリンク
-//===========================================================================================================
-
-//===========================================================================================================
 // マクロ定義
 //===========================================================================================================
 
@@ -41,6 +37,7 @@ public:
 
 	void SetCollar(D3DXCOLOR collar);
 	void SetPos(D3DXVECTOR3 pos);
+	void SetDifRot(D3DXVECTOR3 rot);
 	void SetRot(D3DXVECTOR3 rot);
 	void SetScale(D3DXVECTOR3 scale);
 	void SetSize(D3DXVECTOR3 size);
@@ -49,6 +46,13 @@ public:
 	void Vertex(VERTEX_2D *pVtx);
 
 	bool HitShapeCollision(CScene2D *scene2D);
+
+	D3DXVECTOR3 GetPos();
+	D3DXVECTOR3 GetRot();
+	D3DXVECTOR3 GetSize();
+	D3DXVECTOR3 GetScale();
+	D3DXCOLOR GetCollar();
+	float GetLength();
 
 protected:
 
@@ -64,19 +68,12 @@ protected:
 	void SetVertexTex_Scroll(VERTEX_2D *pVtx);
 
 	void SetTextureAnimationTex(int nHeight, int nWide);
-	bool SetTextureAnimation(int nFrame, bool bLoop);
+	bool SetTextureAnimation(int nFrame, bool bLoop = true);
 
-	D3DXVECTOR3 GetPos();
-	D3DXVECTOR3 GetRot();
-	D3DXVECTOR3 GetSize();
-	D3DXVECTOR3 GetScale();
-	D3DXCOLOR GetCollar();
-	float GetLength();
-
-	void Rot();
+	void Rot(float num);
+	void Marginalize(float *rot);
 
 private:
-	void Marginalize(float *fot);
 
 	LPDIRECT3DTEXTURE9 m_pTexture;
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;

@@ -9,13 +9,12 @@
 
 #include "scene2D.h"
 
+class CEnemy;
+
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-
-//======================================================================================================================
-// 構造体定義
-//======================================================================================================================
+#define PART3_NUM					(30)
 
 //======================================================================================================================
 // クラス定義
@@ -30,6 +29,7 @@ public:
 	{
 		ENEMYTYPE_PART1,
 		ENEMYTYPE_PART2,
+		ENEMYTYPE_PART3,
 		ENEMYTYPE_MAX
 	};
 
@@ -44,24 +44,24 @@ public:
 	static void Unload();
 	static CEnemy *Create(D3DXVECTOR3 pos, ENEMYTYPE type, float fspeed = 1.0f);
 
-
 	void Init();
 	void Uninit();
 	void Update();
 	void Draw();
 
-	void HitEnemy();
+	void HitEnemy(bool bscore = true);
 	static int GetNumEnemy();
 
 private:
 	void MoveSpeedEnemy();
-	void BulletShot();
+	void HitAllEnemy();
 
 	static LPDIRECT3DTEXTURE9 m_pTexture[];
 
 	static int nNumEnemy;
 
 	D3DXVECTOR3 m_move;
+	D3DXVECTOR3 m_rot;
 
 	ENEMYTYPE m_Type;
 	int m_nTime;

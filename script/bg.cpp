@@ -11,7 +11,6 @@
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-#define MAX_TEX		(1)
 
 //======================================================================================================================
 // プロトタイプ宣言
@@ -20,7 +19,7 @@
 //======================================================================================================================
 // メンバ変数
 //======================================================================================================================
-LPDIRECT3DTEXTURE9 CBg::m_pTexture[MAX_TEX] = {};
+LPDIRECT3DTEXTURE9 CBg::m_pTexture = {};
 
 // コンストラクタ
 CBg::CBg() : CScene2D::CScene2D(OBJTYPE_BG)
@@ -39,14 +38,11 @@ HRESULT CBg::Load()
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	//テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/bg_00.png", &m_pTexture[0]);
+	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/bg_00.png", &m_pTexture);
 
-	for (int nCnt = 0; nCnt < MAX_TEX; nCnt++)
+	if (m_pTexture == NULL)
 	{
-		if (m_pTexture[nCnt] == NULL)
-		{
 			return -1;
-		}
 	}
 
 	return S_OK;
@@ -54,21 +50,18 @@ HRESULT CBg::Load()
 
 void CBg::Unload()
 {
-	for (int nCnt = 0; nCnt < MAX_TEX; nCnt++)
+	//テクスチャの開放
+	if (m_pTexture != NULL)
 	{
-		//テクスチャの開放
-		if (m_pTexture[nCnt] != NULL)
-		{
-			m_pTexture[nCnt]->Release();
-			m_pTexture[nCnt] = NULL;
-		}
+		m_pTexture->Release();
+		m_pTexture = NULL;
 	}
 }
 
 //======================================================================================================================
 // 生成
 //======================================================================================================================
-CBg *CBg::Create(int nType, float fSpeed)
+CBg *CBg::Create(float fSpeed)
 {
 	CBg *pBg;
 
@@ -76,9 +69,9 @@ CBg *CBg::Create(int nType, float fSpeed)
 
 	pBg->SetPos(D3DXVECTOR3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.0f));
 	pBg->Init();
-	pBg->BindTexture(m_pTexture[nType]);
+	pBg->BindTexture(m_pTexture);
 
-	pBg->SetSpeed(fSpeed);
+	pBg->m_fSpeed = fSpeed;
 
 	return pBg;
 }
@@ -119,11 +112,6 @@ void CBg::Update()
 void CBg::Draw()
 {
 	CScene2D::Draw();
-}
-
-void CBg::SetSpeed(float fSpeed)
-{
-	m_fSpeed = fSpeed;
 }
 
 //======================================================================================================================

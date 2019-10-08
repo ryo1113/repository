@@ -10,10 +10,7 @@
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-
-//======================================================================================================================
-// プロトタイプ宣言
-//======================================================================================================================
+#define BULLET_LIFE			(10)
 
 //======================================================================================================================
 // メンバ変数
@@ -93,7 +90,7 @@ void CEffect::Unload()
 //======================================================================================================================
 // 生成
 //======================================================================================================================
-CEffect *CEffect::Create(D3DXVECTOR3 pos)
+CEffect *CEffect::Create(D3DXVECTOR3 pos, EFFECTTYPE type)
 {
 	if (MAX_EFFECT <= m_nNumAll)
 		return NULL;
@@ -103,8 +100,9 @@ CEffect *CEffect::Create(D3DXVECTOR3 pos)
 	pEffect = new CEffect;
 
 	pEffect->SetPos(pos);
+	pEffect->m_type = type;
 	pEffect->Init();
-	pEffect->BindTexture(m_pTexture);
+	pEffect->BindTexture(NULL);
 
 	return pEffect;
 }
@@ -114,13 +112,29 @@ CEffect *CEffect::Create(D3DXVECTOR3 pos)
 //======================================================================================================================
 void CEffect::Init()
 {
-	SetSize(D3DXVECTOR3(20.0f, 20.0f, 0.0f));
+	m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_nLife = BULLET_LIFE;
 
 	CScene2D::Init();
 
-	SetCollar(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
+	switch (m_type)
+	{
+	case CEffect::EFFECTTYPE_NONE:
 
-	m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		SetSize(D3DXVECTOR3(20.0f, 20.0f, 0.0f));
+
+		SetCollar(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
+
+		break;
+
+	case CEffect::EFFECTTYPE_LASER:
+
+		SetSize(D3DXVECTOR3(15.0f, 15.0f, 0.0f));
+
+		SetCollar(D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+		break;
+	}
 }
 
 //======================================================================================================================
@@ -138,11 +152,27 @@ void CEffect::Uninit()
 //======================================================================================================================
 void CEffect::Update()
 {
-	SetSize(GetSize() + D3DXVECTOR3(-0.7f, -0.7f, 0.0f));
-
-	if (GetSize().x < 0.1f || GetSize().y < 0.1f)
+	switch (m_type)
 	{
-		this->Uninit();
+	case CEffect::EFFECTTYPE_NONE:
+
+		SetSize(GetSize() + D3DXVECTOR3(-0.7f, -0.7f, 0.0f));
+
+		if (GetSize().x < 0.1f || GetSize().y < 0.1f)
+		{
+			this->Uninit();
+		}
+
+		break;
+
+	case CEffect::EFFECTTYPE_LASER:
+
+		if (--m_nLife <= 0)
+		{
+			this->Uninit();
+		}
+
+		break;
 	}
 }
 
@@ -151,20 +181,7 @@ void CEffect::Update()
 //======================================================================================================================
 void CEffect::Draw()
 {
-	//デバイスを取得
-	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
-	// レンダーステート(加算合成処理)
-	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);				// αブレンドを行う
-	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);			// αソースカラーの指定							//JPG用
-	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);				// αディスティネイションカラーの指定 
-
-	CScene2D::Draw();
-
-	// レンダーステート(通常ブレンド処理)
-	pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, D3DBLENDOP_ADD);	// αブレンドを行う
-	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);			// αソースカラーの指定						//テクスチャ背景なし３行
-	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);		// αディスティネイションカラーの指定
 }
 
 void CEffect::DrawAll()

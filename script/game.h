@@ -9,8 +9,6 @@
 
 #include "manager.h"
 
-class CScore;
-
 //======================================================================================================================
 // ƒNƒ‰ƒX’è‹`
 //======================================================================================================================
@@ -36,15 +34,10 @@ public:
 	void Update();
 	void Draw();
 
-	static void AddGameScore(int nScore);
-
 	void SetGameState(GAMESTATE state);
 	GAMESTATE GetGameState();
 
 private:
-	int random(int min, int max);
-
-	static CScore *m_Score;
 
 	GAMESTATE g_GameState = GAMESTATE_MAX;
 	int g_nCounterGameState = 0;

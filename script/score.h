@@ -1,6 +1,6 @@
 //======================================================================================================================
 //
-// 処理[score.h]
+// スコア処理[score.h]
 // Author:RYO KANDA
 //
 //======================================================================================================================
@@ -10,6 +10,7 @@
 #include "scene.h"
 
 class CNumber;
+
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
@@ -25,25 +26,39 @@ public:
 	~CScore();
 	void Vertex(VERTEX_2D *pVtx) {}
 
-	static CScore *Create(D3DXVECTOR3 pos, D3DXVECTOR3 size, int nNum);
+	static CScore *Create(D3DXVECTOR3 pos, D3DXVECTOR3 size, int num = -1);
 
 	void Init();
 	void Uninit();
 	void Update();
 	void Draw();
 
+	static void Sort();
+	static void ScoreFlash();
+
 	void SetScore(int nScore);
 	void AddScore(int nNumber);
 
-	int GetScore() { return m_nScore[6]; }
+	static CNumber *GetScore() { return m_apNumber[0]; }
 
 private:
-	void Display(int Cnt);
-	void QuickSort(int nScore[], int nLeft, int nRight);
+	static void Display(const int num = -1);
+	static void QuickSort(int nScore[], int nLeft, int nRight);
 
-	CNumber *m_apNumber[MAX_DIGIT];
+	static CNumber *m_apNumber[MAX_DIGIT];
 
-	static int m_nScore[];
+	static int m_nScore;
+
+	struct RANKING
+	{
+		CNumber *m_apNumber[MAX_DIGIT];
+		int nRankScore;
+	};
+	
+	static RANKING m_nRanking[RANKING_NUM];
+
+	static float m_fFlashα;
+	static int m_nCntFlash;
 };
 
 #endif

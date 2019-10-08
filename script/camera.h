@@ -25,7 +25,7 @@ public:
 
 	void Init(void);
 	static void MoveCamera(D3DXVECTOR3 move);
-	static D3DXVECTOR3 *GetCamera(void);
+	static D3DXVECTOR3 *GetCamera();
 
 private:
 	static D3DXVECTOR3 m_pos;

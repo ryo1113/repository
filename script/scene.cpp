@@ -12,20 +12,11 @@
 //======================================================================================================================
 
 //======================================================================================================================
-// 構造体定義
-//======================================================================================================================
-
-//======================================================================================================================
-// プロトタイプ宣言
-//======================================================================================================================
-
-//======================================================================================================================
 // メンバ変数
 //======================================================================================================================
 CScene *CScene::m_apScene[OBJTYPE_MAX][MAX_2D] = {};
 CScene *CScene::m_apSceneDrow[OBJTYPE_MAX][MAX_2D] = {};
 int CScene::m_nNumAll = 0;
-
 
 // コンストラクタ
 CScene::CScene(OBJTYPE objtype, OBJECT obj)
@@ -49,7 +40,6 @@ CScene::CScene(OBJTYPE objtype, OBJECT obj)
 		if (!m_apScene[objtype][nCount])
 		{
 			m_apScene[objtype][nCount] = this;
-
 			this->m_nID = nCount;
 
 			m_nNumAll++;
@@ -86,14 +76,27 @@ void CScene::ReleaseAll()
 
 void CScene::UpdateAll()
 {
-	for (int nCount = 0; nCount < OBJTYPE_MAX; nCount++)
+	if (CManager::GetMode() == CManager::MODE_PAUSE)
 	{
 		for (int nCnt = 0; nCnt < MAX_2D; nCnt++)
 		{
-			if (!m_apScene[nCount][nCnt])
+			if (!m_apScene[OBJTYPE_UI][nCnt])
 				continue;
 
-			m_apScene[nCount][nCnt]->Update();
+			m_apScene[OBJTYPE_UI][nCnt]->Update();
+		}
+	}
+	else
+	{
+		for (int nCount = 0; nCount < OBJTYPE_MAX; nCount++)
+		{
+			for (int nCnt = 0; nCnt < MAX_2D; nCnt++)
+			{
+				if (!m_apScene[nCount][nCnt])
+					continue;
+
+				m_apScene[nCount][nCnt]->Update();
+			}
 		}
 	}
 }
@@ -115,6 +118,11 @@ void CScene::DrawAll()
 CScene *CScene::GetScene(OBJTYPE objtype, int num)
 {
 	return m_apScene[objtype][num];
+}
+
+int CScene::GetID()
+{
+	return m_nID;
 }
 
 void CScene::SetObjType(OBJTYPE objtype)

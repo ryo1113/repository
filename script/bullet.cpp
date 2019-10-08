@@ -15,10 +15,8 @@
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-
-//======================================================================================================================
-// プロトタイプ宣言
-//======================================================================================================================
+#define	BULLET_SPEED					(7)
+#define TURN_FRAME_BULLET				(2.0f)
 
 //======================================================================================================================
 // メンバ変数
@@ -98,7 +96,7 @@ void CBullet::Unload()
 //======================================================================================================================
 // 生成
 //======================================================================================================================
-CBullet *CBullet::Create(D3DXVECTOR3 pos, D3DXVECTOR3 move)
+CBullet *CBullet::Create(D3DXVECTOR3 pos, D3DXVECTOR3 move, BULLETTYPE type)
 {
 	if (!GetShotNum())
 		return NULL;
@@ -107,10 +105,12 @@ CBullet *CBullet::Create(D3DXVECTOR3 pos, D3DXVECTOR3 move)
 
 	pBullet = new CBullet;
 
-	pBullet->m_move = move;
+	D3DXVec3Normalize(&pBullet->m_move, &move);
 	pBullet->SetPos(pos);
+	pBullet->m_type = type;
+
 	pBullet->Init();
-	pBullet->BindTexture(m_pTexture);
+	pBullet->BindTexture(NULL);
 
 	return pBullet;
 }
@@ -127,6 +127,19 @@ void CBullet::Init()
 	CScene2D::Init();
 
 	SetTextureAnimationTex(1, 4);
+
+	switch (m_type)
+	{
+	case CBullet::BULLETTYPE_NONE:
+		SetCollar(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f));
+		CManager::SetSound(CSound::SOUND_LABEL_SE_SHOT_00);
+
+		break;
+	case CBullet::BULLETTYPE_HOMING:
+		CManager::SetSound(CSound::SOUND_LABEL_SE_SHOT_01);
+
+		break;
+	}
 }
 
 //======================================================================================================================
@@ -144,14 +157,30 @@ void CBullet::Uninit()
 //======================================================================================================================
 void CBullet::Update()
 {
-	MoveSpeed();
+	SetTextureAnimation(5);
 
-	SetTextureAnimation(5, true);
+	switch (m_type)
+	{
+	case CBullet::BULLETTYPE_NONE:
 
-	// エフェクト生成
-	CEffect::Create(GetPos());
+		this->MoveSpeed();
 
+		// エフェクト生成
+		CEffect::Create(GetPos(), CEffect::EFFECTTYPE_LASER);
 
+		break;
+
+	case CBullet::BULLETTYPE_HOMING:
+
+		this->TrackingBullet();
+
+		// エフェクト生成
+		CEffect::Create(GetPos(), CEffect::EFFECTTYPE_NONE);
+
+		break;
+	}
+
+	// 敵に当たる
 	for (int nCnt = 0; nCnt < MAX_2D; nCnt++)
 	{
 		CScene *pScene = GetScene(OBJTYPE_ENEMY, nCnt);
@@ -161,11 +190,14 @@ void CBullet::Update()
 
 		CEnemy *pEnemy = (CEnemy*)pScene;
 
-		if (HitShapeCollision(pEnemy))
+  		if (HitShapeCollision(pEnemy))
 		{
 			pEnemy->HitEnemy();
 
-			this->Uninit();
+			if (m_type != BULLETTYPE_NONE)
+			{
+				this->Uninit();
+			}
 
 			break;
 		}
@@ -236,6 +268,9 @@ void CBullet::DrawAll()
 	}
 }
 
+//======================================================================================================================
+// 弾の限界数を判定
+//======================================================================================================================
 bool CBullet::GetShotNum()
 {
 	if (MAX_BULLET > m_nNumAll)
@@ -251,7 +286,44 @@ void CBullet::MoveSpeed()
 {
 	D3DXVECTOR3 pos = GetPos();
 
-	pos += m_move;
+	pos += m_move * BULLET_SPEED * 1.2f;
 
 	SetPos(pos);
+}
+
+//======================================================================================================================
+// 追尾弾
+//======================================================================================================================
+void CBullet::TrackingBullet()
+{
+	D3DXVECTOR3 pos = GetPos();
+
+	D3DXVECTOR3 Distance = D3DXVECTOR3(10000.0f, 0.0f, 0.0f);
+
+	for (int nCnt = 0; nCnt < MAX_2D; nCnt++)
+	{
+		CScene *pScene = GetScene(OBJTYPE_ENEMY, nCnt);
+
+		if (!pScene)
+			continue;
+
+		CEnemy *pEnemy = (CEnemy*)pScene;
+
+		D3DXVECTOR3 Dis = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		D3DXVec3Subtract(&Dis, &pEnemy->GetPos(), &GetPos());
+
+		if (D3DXVec3LengthSq(&Distance) > D3DXVec3LengthSq(&Dis))
+		{
+			Distance = Dis;
+		}
+	}
+
+	SetDifRot(D3DXVECTOR3(0.0f, 0.0f, atan2(Distance.y, Distance.x)));
+
+	Rot(TURN_FRAME_BULLET);
+
+	m_move.x = cosf(GetRot().z) * BULLET_SPEED;
+	m_move.y = sinf(GetRot().z) * BULLET_SPEED;
+
+	SetPos(pos + m_move);
 }

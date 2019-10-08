@@ -14,10 +14,6 @@
 //======================================================================================================================
 
 //======================================================================================================================
-// 構造体定義
-//======================================================================================================================
-
-//======================================================================================================================
 // クラス定義
 //======================================================================================================================
 class CBullet : public CScene2D
@@ -26,9 +22,16 @@ public:
 	CBullet();
 	~CBullet();
 
+	enum BULLETTYPE
+	{
+		BULLETTYPE_NONE = 0,
+		BULLETTYPE_HOMING,
+		BULLETTYPE_MAX
+	};
+
 	static HRESULT Load();
 	static void Unload();
-	static CBullet *Create(D3DXVECTOR3 pos, D3DXVECTOR3 move);
+	static CBullet *Create(D3DXVECTOR3 pos, D3DXVECTOR3 move, BULLETTYPE type);
 
 	void Init();
 	void Uninit();
@@ -41,6 +44,7 @@ public:
 
 private:
 	void MoveSpeed();
+	void TrackingBullet();
 
 	static bool GetShotNum();
 
@@ -49,6 +53,7 @@ private:
 
 	D3DXVECTOR3 m_move;
 
+	BULLETTYPE m_type;
 	int m_nCntLife;
 
 	static int m_nNumAll;

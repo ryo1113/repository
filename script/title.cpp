@@ -20,7 +20,6 @@
 // メンバ変数
 //======================================================================================================================
 
-
 //======================================================================================================================
 // タイトル生成
 //======================================================================================================================
@@ -42,7 +41,7 @@ void CTitle::Init()
 {
 	m_nFadeCount = 360;
 
-	CBg::Create(0, 0.0005f);
+	CBg::Create(0.0005f);
 
 	CWord::Create(CWord::WORD_TITLE, D3DXVECTOR3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.0f), D3DXVECTOR3(800.0f, 100.0f, 0.0f));
 	CWord::Create(CWord::WORD_ENTER, D3DXVECTOR3(1030.0f, 670.0f, 0.0f), D3DXVECTOR3(500.0f, 70.0f, 0.0f));
@@ -66,8 +65,9 @@ void CTitle::Update()
 
 	if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
 	{
-		CRenderer::SetFade(CManager::MODE_GAME);
+		CRenderer::SetFade(CManager::MODE_TUTORIAL);
 	}
+	
 	if (--m_nFadeCount <= 0)
 	{
 		CRenderer::SetFade(CManager::MODE_RESULT);

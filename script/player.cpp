@@ -18,8 +18,10 @@
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-#define PLAYER_SPEED		(1.0f)
-#define PLAYER_GRAVITY		(0.4f)
+#define PLAYER_SPEED			(1.5f)
+#define PLAYER_GRAVITY			(0.4f)
+
+#define TURN_FRAME_PLAYER		(1.5f)
 
 //======================================================================================================================
 // プロトタイプ宣言
@@ -91,6 +93,8 @@ void CPlayer::Init()
 	SetPos(D3DXVECTOR3(200, 300, 0.0f));
 
 	CScene2D::Init();
+
+	m_nType = 0;
 }
 
 //======================================================================================================================
@@ -118,7 +122,7 @@ void CPlayer::Update()
 	MoveSpeedPlayer();
 
 	// 向きの処理
-	Rot();
+	Rot(TURN_FRAME_PLAYER);
 
 	if (fabsf(m_move.x) < 0.01f)
 	{
@@ -183,47 +187,47 @@ void CPlayer::MoveSpeedPlayer()
 	else if (pKey->GetKeyboardPress(DIK_D) && pKey->GetKeyboardPress(DIK_S))
 	{
 		m_move += MoveVector(D3DXVECTOR3(1.0f, 1.0f, 0.0f), PLAYER_SPEED);
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * -1.0f / 8.0f));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * -1.0f / 8.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_D) && pKey->GetKeyboardPress(DIK_W))
 	{
 		m_move += MoveVector(D3DXVECTOR3(1.0f, -1.0f, 0.0f), PLAYER_SPEED);
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 16.0f));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 16.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_A) && pKey->GetKeyboardPress(DIK_W))
 	{
 		m_move += MoveVector(D3DXVECTOR3(-1.0f, -1.0f, 0.0f), PLAYER_SPEED);
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 6.0f));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 6.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_A) && pKey->GetKeyboardPress(DIK_S))
 	{
 		m_move += MoveVector(D3DXVECTOR3(-1.0f, 1.0f, 0.0f), PLAYER_SPEED);
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 3.0f));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 3.0f));
 	}
 
 	else if (pKey->GetKeyboardPress(DIK_D))
 	{
 		m_move += MoveVector(D3DXVECTOR3(1.0f, 0.0f, 0.0f), PLAYER_SPEED);
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_A))
 	{
 		m_move += MoveVector(D3DXVECTOR3(-1.0f, 0.0f, 0.0f), PLAYER_SPEED);
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 4.0f));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 4.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_W))
 	{
 		m_move += MoveVector(D3DXVECTOR3(0.0f, -1.0f, 0.0f), PLAYER_SPEED);
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 8.0f));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 8.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_S))
 	{
 		m_move += MoveVector(D3DXVECTOR3(0.0f, 1.0f, 0.0f), PLAYER_SPEED);
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * -1.0f / 4.0f));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * -1.0f / 4.0f));
 	}
 	else
 	{
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	}
 
 	float fV, fH;
@@ -236,19 +240,9 @@ void CPlayer::MoveSpeedPlayer()
 		m_move += Move(atan2f(fH, fV), PLAYER_SPEED);
 
 		// 向き
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, -atan2f(fH, fV)));
+		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, -atan2f(fH, fV)));
 	}
 	
-	if (pKey->GetKeyboardTrigger(DIK_G))
-	{ 
-		SetScale(D3DXVECTOR3(2.0f, 2.0f, 0.0f));
-	}
-
-	if (pKey->GetKeyboardPress(DIK_H))
-	{
-		SetRot(D3DXVECTOR3(0.0f, 0.0f, 0.005f) + GetRot());
-	}
-
 	//fH = (float)pMouse->GetMouseX();
 	//fV = (float)pMouse->GetMouseY();
 
@@ -266,13 +260,27 @@ void CPlayer::BulletShot()
 {
 	CKeyboard *pKey = CManager::GetInputKeyboard();
 
+	if (pKey->GetKeyboardTrigger(DIK_LSHIFT))
+	{
+		m_nType += 1;
+
+		if (m_nType >= CBullet::BULLETTYPE_MAX)
+		{
+			m_nType = 0;
+		}
+	}
+
 	if (pKey->GetKeyboardTrigger(DIK_SPACE))
 	{
-		CBullet::Create(GetPos() + D3DXVECTOR3(GetSize().x * 0.5f, 0.0f, 0.0f),
-						D3DXVECTOR3(5.0f, 0.0f, 0.0f));
+		CBullet::Create(GetPos() + D3DXVECTOR3(GetLength() * cosf(-GetRot().z),
+											   GetLength() * sinf(-GetRot().z), 0.0f),
+						D3DXVECTOR3(GetLength() * cosf(-GetRot().z), GetLength() * sinf(-GetRot().z), 0.0f), (CBullet::BULLETTYPE)m_nType);
 	}
 }
 
+//======================================================================================================================
+// 動きの制限
+//======================================================================================================================
 void CPlayer::ScreenLimit(D3DXVECTOR3 &pos)
 {
 	float fLenght = GetLength();

@@ -19,7 +19,7 @@ int CCamera::nScreenMax = 0;
 // コンストラクタ
 CCamera::CCamera()
 {
-	nScreenMax = -SCREEN_WIDTH * 2;
+	nScreenMax = -SCREEN_WIDTH * 3;
 }
 
 // デストラクタ
@@ -69,7 +69,7 @@ void CCamera::MoveCamera(D3DXVECTOR3 move)
 //======================================================================================================================
 // カメラ情報の取得
 //======================================================================================================================
-D3DXVECTOR3 *CCamera::GetCamera(void)
+D3DXVECTOR3 *CCamera::GetCamera()
 {
 	return &m_pos;
 }

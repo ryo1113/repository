@@ -38,8 +38,9 @@ public:
 	void DrawFPS();
 #endif
 	static void SetFade(CManager::MODE modeNext);
+	static CFade *GetFade();
 
-	LPDIRECT3DDEVICE9 GetDevice(void);
+	LPDIRECT3DDEVICE9 GetDevice();
 
 protected:
 

@@ -22,7 +22,6 @@
 // ÉÅÉìÉoïœêî
 //======================================================================================================================
 
-
 //======================================================================================================================
 // ÉäÉUÉãÉgê∂ê¨
 //======================================================================================================================
@@ -44,12 +43,15 @@ void CResult::Init()
 {
 	m_FadeCount = 300;
 
-	CBg::Create(0, 0.005f);
+	CBg::Create(0.005f);
 	CWord::Create(CWord::WORD_RESULT, D3DXVECTOR3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 10.0f, 0.0f), D3DXVECTOR3(500.0f, 100.0f, 0.0f));
 
 	CWord::Create(CWord::WORD_RANK, D3DXVECTOR3(SCREEN_WIDTH / 4.0f, SCREEN_HEIGHT / 1.8f, 0.0f), D3DXVECTOR3(150.0f, 500.0f, 0.0f));
 
-	for (int nCnt = 0; nCnt < 5; nCnt++)
+	// ï¿Ç—ë÷Ç¶
+	CScore::Sort();
+
+	for (int nCnt = 0; nCnt < RANKING_NUM; nCnt++)
 	{
 		CScore::Create(D3DXVECTOR3(SCREEN_WIDTH / 1.4f, SCREEN_HEIGHT / 3.8f + nCnt * 105.0f, 0.0f), D3DXVECTOR3(60.0f, 90.0f, 0.0f), nCnt);
 	}
@@ -68,6 +70,8 @@ void CResult::Uninit()
 //======================================================================================================================
 void CResult::Update()
 {
+	CScore::ScoreFlash();
+
 	CKeyboard *pKey = CManager::GetInputKeyboard();
 	CPad *pPad = CManager::GetInputPad();
 

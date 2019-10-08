@@ -1,28 +1,33 @@
 //======================================================================================================================
 //
-// 処理[score.cpp]
+// スコア処理[score.cpp]
 // Author:RYO KANDA
 //
 //======================================================================================================================
 #include "manager.h"
 
 #include "score.h"
-
 #include "number.h"
+
+#include "game.h"
 
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-#define SCORE_MAX		(6)
+#define SCORE_TXT			("data/ranking.txt")
+#define TXT_READS			(20)
 
-//======================================================================================================================
-// プロトタイプ宣言
-//======================================================================================================================
+#define FLASH_CONT_RANK		(5.0f)
 
 //======================================================================================================================
 // メンバ変数
 //======================================================================================================================
-int CScore::m_nScore[6] = { 3500,3000,2500,2000,5500,1000 };
+int CScore::m_nScore = 0;
+CNumber *CScore::m_apNumber[MAX_DIGIT] = {};
+CScore::RANKING CScore::m_nRanking[RANKING_NUM] = {};
+
+int CScore::m_nCntFlash = 0;
+float CScore::m_fFlashα = 1.0f / FLASH_CONT_RANK;
 
 // コンストラクタ
 CScore::CScore() : CScene::CScene(OBJTYPE_UI)
@@ -39,20 +44,30 @@ CScore::~CScore()
 //======================================================================================================================
 // 生成
 //======================================================================================================================
-CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size, int nNum)
+CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size, int num)
 {
 	CScore *pScore;
 
 	pScore = new CScore;
 
-	for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
+	if (num == -1)
 	{
-		pScore->m_apNumber[nCnt] = CNumber::Create(pos - D3DXVECTOR3(size.x * nCnt, 0.0f, 0.0f), size);
+		for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
+		{
+			pScore->m_apNumber[nCnt] = CNumber::Create(pos - D3DXVECTOR3(size.x * nCnt, 0.0f, 0.0f), size);
+		}
+	}
+	else
+	{
+		for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
+		{
+			pScore->m_nRanking[num].m_apNumber[nCnt] = CNumber::Create(pos - D3DXVECTOR3(size.x * nCnt, 0.0f, 0.0f), size);
+		}		
+
+		Display(num);
 	}
 
 	pScore->Init();
-
-	pScore->Display(nNum);
 
 	return pScore;
 }
@@ -62,19 +77,12 @@ CScore *CScore::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size, int nNum)
 //======================================================================================================================
 void CScore::Init()
 {
-	for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
-	{
-		if (m_apNumber[nCnt])
-		{
-			m_apNumber[nCnt]->Init();
-		}
-	}
+	m_nCntFlash = 0;
+	m_fFlashα = 1.0f / FLASH_CONT_RANK;
 
-	QuickSort(m_nScore, 0, SCORE_MAX - 1);
-	
 	if (CManager::GetMode() == CManager::MODE_GAME)
 	{
-		m_nScore[5] = 0;
+		m_nScore = 0;
 	}
 }
 
@@ -83,11 +91,27 @@ void CScore::Init()
 //======================================================================================================================
 void CScore::Uninit()
 {
+	if (CManager::GetMode() == CManager::MODE_RESULT)
+	{
+		m_nScore = 0;
+	}
+
 	for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
 	{
 		if (m_apNumber[nCnt])
 		{
 			m_apNumber[nCnt] = NULL;
+		}
+	}
+
+	for (int nCnt = 0; nCnt < RANKING_NUM; nCnt++)
+	{
+		for (int nCount = 0; nCount < MAX_DIGIT; nCount++)
+		{
+			if (m_nRanking[nCnt].m_apNumber[nCount])
+			{
+				m_nRanking[nCnt].m_apNumber[nCount] = NULL;
+			}
 		}
 	}
 
@@ -114,6 +138,109 @@ void CScore::Draw()
 			m_apNumber[nCnt]->Draw();
 		}
 	}
+
+	for (int nCnt = 0; nCnt < RANKING_NUM; nCnt++)
+	{
+		for (int nCount = 0; nCount < MAX_DIGIT; nCount++)
+		{
+			if (m_nRanking[nCnt].m_apNumber[nCount])
+			{
+				m_nRanking[nCnt].m_apNumber[nCount]->Draw();
+			}
+		}
+	}
+}
+
+//======================================================================================================================
+// 並び替え呼び出し && ロード && セーブ
+//======================================================================================================================
+void CScore::Sort()
+{
+	int nScore[TXT_READS] = {};
+
+	// ロード
+	FILE *pFile = fopen(SCORE_TXT, "r");
+
+	if (pFile)
+	{
+		for (int nCnt = 0; nCnt < TXT_READS; nCnt++)
+		{
+			fscanf(pFile, "%d", &nScore[nCnt]);
+		}
+		fclose(pFile);
+	}
+
+	// 同じ物があれば並び替えなし
+	bool bSame = false;
+
+	for (int nCnt = 0; nCnt < TXT_READS; nCnt++)
+	{
+		if (m_nScore == 0 || nScore[nCnt] == m_nScore)
+		{
+			bSame = true;
+			break;
+		}
+	}
+
+	if (!bSame)
+	{
+		// 自己スコア代入
+		nScore[TXT_READS - 1] = m_nScore;
+
+		QuickSort(nScore, 0, TXT_READS - 1);
+
+		// セーブ
+		pFile = fopen(SCORE_TXT, "w");
+
+		if (pFile)
+		{
+			for (int nCnt = 0; nCnt < TXT_READS; nCnt++)
+			{
+				fprintf(pFile, "%d\n\n", nScore[nCnt]);
+			}
+			fclose(pFile);
+		}
+
+	}
+
+	for (int nCnt = 0; nCnt < RANKING_NUM; nCnt++)
+	{
+		m_nRanking[nCnt].nRankScore = nScore[nCnt];
+	}
+}
+
+//======================================================================================================================
+// 同じスコアが有れば点滅
+//======================================================================================================================
+void CScore::ScoreFlash()
+{
+	if (m_nScore != 0)
+	{
+		for (int nCnt = 0; nCnt < RANKING_NUM; nCnt++)
+		{
+			if (m_nScore == m_nRanking[nCnt].nRankScore)
+			{
+				for (int nCount = 0; nCount < MAX_DIGIT; nCount++)
+				{
+					D3DXCOLOR col = m_nRanking[nCnt].m_apNumber[nCount]->GetColor();;
+
+					col.a -= m_fFlashα;
+
+					m_nRanking[nCnt].m_apNumber[nCount]->SetColor(col);
+				}
+
+				Display(nCnt);
+
+				break;
+			}
+		}
+
+		if (++m_nCntFlash == FLASH_CONT_RANK)
+		{
+			m_nCntFlash = 0;
+			m_fFlashα *= -1;
+		}
+	}
 }
 
 //======================================================================================================================
@@ -121,28 +248,40 @@ void CScore::Draw()
 //======================================================================================================================
 void CScore::SetScore(int nScore)
 {
-	m_nScore[5] = nScore;
+	m_nScore = nScore;
 
-	Display(5);
+	Display();
 }
 
 void CScore::AddScore(int nNumber)
 {
-	m_nScore[5] += nNumber;
+	m_nScore += nNumber;
 
-	Display(5);
+	Display();
 }
 
 //======================================================================================================================
 // 表示処理
 //======================================================================================================================
-void CScore::Display(int Cnt)
+void CScore::Display(const int num)
 {
-	for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
+	if (num == -1)
 	{
-		int nDigit = m_nScore[Cnt] % (int)pow(10, nCnt + 1.0f) / (int)pow(10, nCnt);
+		for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
+		{
+			int nDigit = m_nScore % (int)pow(10, nCnt + 1.0f) / (int)pow(10, nCnt);
 
-		m_apNumber[nCnt]->SetNum(nDigit);
+			m_apNumber[nCnt]->SetNum(nDigit);
+		}
+	}
+	else
+	{
+		for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
+		{
+			int nDigit = m_nRanking[num].nRankScore % (int)pow(10, nCnt + 1.0f) / (int)pow(10, nCnt);
+
+			m_nRanking[num].m_apNumber[nCnt]->SetNum(nDigit);
+		}
 	}
 }
 

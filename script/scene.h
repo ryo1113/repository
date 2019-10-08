@@ -19,10 +19,12 @@
 //===========================================================================================================
 // マクロ定義
 //===========================================================================================================
-#define MAX_EFFECT			(4096)
+#define MAX_EFFECT			(1024)
 #define MAX_BULLET			(3)
 
-#define MAX_2D		(1024)
+#define MAX_2D				(1024)
+
+#define RANKING_NUM			(5)
 
 //===========================================================================================================
 // クラス定義
@@ -67,12 +69,14 @@ public:
 	static void DrawAll();
 
 	static CScene *GetScene(OBJTYPE objtype, int num);
+	int GetID();
 
 	void SetObjType(OBJTYPE objtype);
 	static OBJTYPE GetObjType(OBJTYPE objtype, int num);
 
 protected:
 	void Release(CScene **ppBeloneArray = m_apSceneDrow[0]);
+
 	int m_nDrawIdx;
 
 private:

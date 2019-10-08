@@ -23,12 +23,20 @@
 class CEffect : public CScene2D
 {
 public:
+
+	enum EFFECTTYPE
+	{
+		EFFECTTYPE_NONE,
+		EFFECTTYPE_LASER,
+		EFFECTTYPE_MAX
+	};
+
 	CEffect();
 	~CEffect();
 
 	static HRESULT Load();
 	static void Unload();
-	static CEffect *Create(D3DXVECTOR3 pos);
+	static CEffect *Create(D3DXVECTOR3 pos, EFFECTTYPE type);
 
 	void Init();
 	void Uninit();
@@ -46,7 +54,10 @@ private:
 	D3DXVECTOR3 m_move;
 
 	static int m_nNumAll;
+
+	EFFECTTYPE m_type;
 	int m_nID;			// é©ï™ÇÃî‘çÜ
+	int m_nLife;
 };
 
 #endif
