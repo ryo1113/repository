@@ -15,7 +15,7 @@
 // マクロ定義
 //======================================================================================================================
 #define SCORE_TXT			("data/ranking.txt")
-#define TXT_READS			(20)
+#define TXT_LOADS			(20)
 
 #define FLASH_CONT_RANK		(5.0f)
 
@@ -156,14 +156,14 @@ void CScore::Draw()
 //======================================================================================================================
 void CScore::Sort()
 {
-	int nScore[TXT_READS] = {};
+	int nScore[TXT_LOADS] = {};
 
 	// ロード
 	FILE *pFile = fopen(SCORE_TXT, "r");
 
 	if (pFile)
 	{
-		for (int nCnt = 0; nCnt < TXT_READS; nCnt++)
+		for (int nCnt = 0; nCnt < TXT_LOADS; nCnt++)
 		{
 			fscanf(pFile, "%d", &nScore[nCnt]);
 		}
@@ -173,7 +173,7 @@ void CScore::Sort()
 	// 同じ物があれば並び替えなし
 	bool bSame = false;
 
-	for (int nCnt = 0; nCnt < TXT_READS; nCnt++)
+	for (int nCnt = 0; nCnt < TXT_LOADS; nCnt++)
 	{
 		if (m_nScore == 0 || nScore[nCnt] == m_nScore)
 		{
@@ -185,16 +185,16 @@ void CScore::Sort()
 	if (!bSame)
 	{
 		// 自己スコア代入
-		nScore[TXT_READS - 1] = m_nScore;
+		nScore[TXT_LOADS - 1] = m_nScore;
 
-		QuickSort(nScore, 0, TXT_READS - 1);
+		QuickSort(nScore, 0, TXT_LOADS - 1);
 
 		// セーブ
 		pFile = fopen(SCORE_TXT, "w");
 
 		if (pFile)
 		{
-			for (int nCnt = 0; nCnt < TXT_READS; nCnt++)
+			for (int nCnt = 0; nCnt < TXT_LOADS; nCnt++)
 			{
 				fprintf(pFile, "%d\n\n", nScore[nCnt]);
 			}

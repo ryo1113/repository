@@ -20,7 +20,6 @@
 
 #define NUM_JOYPAD_MAX		(1)		// パッド最大数
 #define JOY_MAX_RANGE		(1024)	// パッド有効範囲
-#define	NUM_KEY_MAX			(256)	// キーの最大数
 
 //======================================================================================================================
 // クラス定義
@@ -73,19 +72,20 @@ public:
 private:
 	static BOOL CALLBACK EnumJoyCallbackJoypad(const DIDEVICEINSTANCE* lpddi, VOID* pvRef);
 	static BOOL CALLBACK EnumAxesCallbackJoypad(const LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef);
+
 	void SetKeyStateJoypad(int nIDPad);
 
-	BYTE							m_aJoyKeyState[NUM_KEY_MAX];			// ジョイパッドの入力情報ワーク
+	BYTE							m_aJoyKeyState[JOYPADKEY_MAX];			// ジョイパッドの入力情報ワーク
 	int								m_nCountWaitRepeat = 0;					// リピート待ち時間
-	int								m_nIntervalRepeat = 0;						// リピート間隔
+	static int						m_nIntervalRepeat;						// リピート間隔
 
 	static LPDIRECTINPUTDEVICE8		m_apDIDevJoypad[NUM_JOYPAD_MAX];							// DirectInputオブジェクトへのポインタ
 	DIJOYSTATE2						m_aJoypadState[NUM_JOYPAD_MAX];								// ジョイパッド状態を受け取るワーク
-	bool							m_aKeyStateJoypad[NUM_JOYPAD_MAX][NUM_KEY_MAX];				// ジョイパッドの押下状態を保持するワーク
-	bool							m_aKeyStateTriggerJoypad[NUM_JOYPAD_MAX][NUM_KEY_MAX];		// ジョイパッドのトリガー状態を保持するワーク
-	bool							m_aKeyStateReleaseJoypad[NUM_JOYPAD_MAX][NUM_KEY_MAX];		// ジョイパッドのリリース状態を保持するワーク
-	bool							m_aKeyStateRepeatJoypad[NUM_JOYPAD_MAX][NUM_KEY_MAX];		// ジョイパッドのリピート状態を保持するワーク
-	int								m_aKeyStateRepeatCntJoypad[NUM_JOYPAD_MAX][NUM_KEY_MAX];	// ジョイパッドのリピートカウンタ
+	bool							m_aKeyStateJoypad[NUM_JOYPAD_MAX][JOYPADKEY_MAX];				// ジョイパッドの押下状態を保持するワーク
+	bool							m_aKeyStateTriggerJoypad[NUM_JOYPAD_MAX][JOYPADKEY_MAX];		// ジョイパッドのトリガー状態を保持するワーク
+	bool							m_aKeyStateReleaseJoypad[NUM_JOYPAD_MAX][JOYPADKEY_MAX];		// ジョイパッドのリリース状態を保持するワーク
+	bool							m_aKeyStateRepeatJoypad[NUM_JOYPAD_MAX][JOYPADKEY_MAX];		// ジョイパッドのリピート状態を保持するワーク
+	int								m_aKeyStateRepeatCntJoypad[NUM_JOYPAD_MAX][JOYPADKEY_MAX];	// ジョイパッドのリピートカウンタ
 	D3DXVECTOR3						m_aKeyStateAxis[NUM_JOYPAD_MAX];
 	static int						m_nCntPad;
 };

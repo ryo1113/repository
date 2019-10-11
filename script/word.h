@@ -1,6 +1,6 @@
 //======================================================================================================================
 //
-// èàóù[word.h]
+// íPåÍÇ‚ÉçÉSèàóù[word.h]
 // Author:RYO KANDA
 //
 //======================================================================================================================
@@ -28,7 +28,9 @@ public:
 		WORD_TITLE,
 		WORD_RESULT,
 		WORD_ENTER,
-		WORD_TUTORIAL_BG,
+		WORD_TUTORIAL_BG_00,
+		WORD_TUTORIAL_BG_01,
+		WORD_TRIANGLE,
 		WORD_RANK,
 		WORD_BULLET_00,
 		WORD_BULLET_01,
@@ -47,15 +49,17 @@ public:
 	void Update();
 	void Draw();
 
+	void Flash();
+
 private:
 	static LPDIRECT3DTEXTURE9 m_pTexture[WORD_MAX];
 
 	D3DXVECTOR3 m_texpos;
 	WORD_TYPE m_Type;
 
-	float fFlashÉø;
+	float m_fFlashÉø;
 
-	int nCntFlash;
+	int m_nCntFlash;
 };
 
 #endif

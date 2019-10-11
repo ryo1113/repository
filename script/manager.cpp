@@ -1,6 +1,6 @@
 //======================================================================================================================
 //
-// 処理 [manager.cpp]
+// manager処理 [manager.cpp]
 // Author:RYO KANDA
 //
 //======================================================================================================================
@@ -11,7 +11,6 @@
 #include "input.h"
 #include "pad.h"
 #include "keyboard.h"
-#include "mouse.h"
 
 #include "title.h"
 #include "tutorial.h"
@@ -41,7 +40,6 @@ CRenderer *CManager::m_pRenderer = NULL;
 
 CKeyboard *CManager::m_pInputKeyboard = NULL;
 CPad *CManager::m_pInputPad = NULL;
-CMouse *CManager::m_pInputMouse = NULL;
 
 CModeBase *CManager::m_pMode = {};
 CManager::MODE CManager::m_Mode = {};
@@ -66,7 +64,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 {
 	m_pRenderer = new CRenderer;
 	// 初期化処理(ウィンドウを作成してから行う)
-	if (FAILED(m_pRenderer->Init(hWnd, TRUE)))			// FALSEでフル画面
+	if (FAILED(m_pRenderer->Init(hWnd, FALSE)))			// FALSEでフル画面
 	{
 		return -1;
 	}
@@ -83,11 +81,6 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return -1;
 	}
 
-	m_pInputMouse = new CMouse;
-	if (FAILED(m_pInputMouse->Init(hInstance, hWnd)))
-	{
-		return -1;
-	}
 	m_pSound = new CSound;
 	m_pSound->InitSound(hWnd);
 
@@ -171,15 +164,6 @@ void CManager::Uninit()
 		m_pInputPad = NULL;
 	}
 	
-	if (m_pInputMouse != NULL)
-	{
-		// 終了処理
-		m_pInputMouse->Uninit();
-
-		delete m_pInputMouse;
-		m_pInputMouse = NULL;
-	}
-
 	if (m_pMode)
 	{
 		m_pMode->Uninit();
@@ -213,8 +197,6 @@ void CManager::Uninit()
 void CManager::Update()
 {
 	m_pInputKeyboard->Update();
-
-	m_pInputMouse->Update();
 
 	m_pInputPad->Update();
 
@@ -263,11 +245,6 @@ CPad *CManager::GetInputPad()
 	return m_pInputPad;
 }
 
-CMouse *CManager::GetInputMouse()
-{
-	return m_pInputMouse;
-}
-
 //======================================================================================================================
 // モードの設定
 //======================================================================================================================
@@ -290,6 +267,8 @@ void CManager::SetMode(MODE mode)
 		delete m_pMode;
 		m_pMode = NULL;
 	}
+
+	m_Mode = mode;
 
 	if (mode == MODE_PAUSE || CPause::GetPauseState() != CPause::PAUSE_STATE_CONTINUE)
 	{
@@ -332,7 +311,6 @@ void CManager::SetMode(MODE mode)
 			m_pPause = NULL;
 		}
 	}
-	m_Mode = mode;
 }
 
 //======================================================================================================================

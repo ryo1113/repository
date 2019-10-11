@@ -207,9 +207,9 @@ void CEnemy::Update()
 		SetPos(pos + m_move);
 	}
 
-	if (GetPos().x + GetSize().x <= 0.0f - CCamera::GetCamera()->x)
+	if (GetPos().x + GetSize().x / 1.5f <= 0.0f - CCamera::GetCamera()->x || fabsf(GetPos().y - SCREEN_HEIGHT / 2) >= SCREEN_HEIGHT)
 	{// âÊñ äOÅiç∂Åj
-		Uninit();
+ 		Uninit();
 	}
 }
 

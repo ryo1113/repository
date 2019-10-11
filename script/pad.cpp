@@ -15,6 +15,7 @@
 //======================================================================================================================
 LPDIRECTINPUTDEVICE8 CPad::m_apDIDevJoypad[NUM_JOYPAD_MAX] = {};
 int CPad::m_nCntPad = 0;
+int CPad::m_nIntervalRepeat = INTERVAL_REPEAT;
 
 //======================================================================================================================
 // 入力処理の初期化
@@ -29,7 +30,6 @@ HRESULT CPad::Init(HINSTANCE hInstance, HWND hWnd)
 		hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_pInput, NULL);
 
 		m_nCountWaitRepeat = COUNT_WAIT_REPEAT;
-		m_nIntervalRepeat = INTERVAL_REPEAT;
 	}
 
 	for (m_nCntPad = 0; m_nCntPad < NUM_JOYPAD_MAX; m_nCntPad++)
@@ -172,39 +172,21 @@ void CPad::Update(void)
 			for (int nCntKey = 0; nCntKey < JOYPADKEY_MAX; nCntKey++)
 			{
 				// トリガー情報の作成
-				m_aKeyStateTriggerJoypad[nCntJoypad][nCntKey] =
-					(aKeyStateOld[nCntKey] ^ m_aKeyStateJoypad[nCntJoypad][nCntKey]) & m_aKeyStateJoypad[nCntJoypad][nCntKey];
+				m_aKeyStateTriggerJoypad[nCntJoypad][nCntKey] = (aKeyStateOld[nCntKey] ^ m_aKeyStateJoypad[nCntJoypad][nCntKey]) & m_aKeyStateJoypad[nCntJoypad][nCntKey];
 
 				// リリース情報の作成
-				m_aKeyStateReleaseJoypad[nCntJoypad][nCntKey] =
-					(aKeyStateOld[nCntKey] ^ m_aKeyStateJoypad[nCntJoypad][nCntKey]) & !m_aKeyStateJoypad[nCntJoypad][nCntKey];
+				m_aKeyStateReleaseJoypad[nCntJoypad][nCntKey] = (aKeyStateOld[nCntKey] ^ m_aKeyStateJoypad[nCntJoypad][nCntKey]) & !m_aKeyStateJoypad[nCntJoypad][nCntKey];
 
 				// リピート情報の作成
 				m_aKeyStateRepeatJoypad[nCntJoypad][nCntKey] = m_aKeyStateTriggerJoypad[nCntJoypad][nCntKey];
+
 				if (m_aKeyStateJoypad[nCntJoypad][nCntKey])
 				{
 					m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey]++;
-					if (m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey] < m_nCountWaitRepeat)
+
+					if (((m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey] - m_nCountWaitRepeat) % m_nIntervalRepeat) == 0 && (m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey] % 10 == 0 || m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey] > 50))
 					{
-						if (m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey] == 1 || m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey] >= m_nCountWaitRepeat)
-						{
-							m_aKeyStateRepeatJoypad[nCntJoypad][nCntKey] = m_aKeyStateJoypad[nCntJoypad][nCntKey];
-						}
-						else
-						{
-							m_aKeyStateRepeatJoypad[nCntJoypad][nCntKey] = 0;
-						}
-					}
-					else
-					{
-						if (((m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey] - m_nCountWaitRepeat) % m_nIntervalRepeat) == 0 && (m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey] % 10 == 0 || m_aKeyStateRepeatCntJoypad[nCntJoypad][nCntKey] > 50))
-						{
-							m_aKeyStateRepeatJoypad[nCntJoypad][nCntKey] = m_aKeyStateJoypad[nCntJoypad][nCntKey];
-						}
-						else
-						{
-							m_aKeyStateRepeatJoypad[nCntJoypad][nCntKey] = 0;
-						}
+						m_aKeyStateRepeatJoypad[nCntJoypad][nCntKey] = m_aKeyStateJoypad[nCntJoypad][nCntKey];
 					}
 				}
 				else
@@ -297,15 +279,12 @@ BOOL CALLBACK CPad::EnumAxesCallbackJoypad(const LPCDIDEVICEOBJECTINSTANCE lpddo
 void CPad::SetKeyStateJoypad(int nIDPad)
 {
 	if (m_aJoypadState[nIDPad].rgdwPOV[0] >= 225 * 100 && m_aJoypadState[nIDPad].rgdwPOV[0] <= 315 * 100)
+	{// 十字キー[左]が押されている
+		m_aKeyStateJoypad[nIDPad][JOYPADKEY_LEFT] = true;
+	}
+	else
 	{
-		if (m_aJoypadState[nIDPad].rgdwPOV[0] >= 225 * 100 && m_aJoypadState[nIDPad].rgdwPOV[0] <= 315 * 100)
-		{// 十字キー[左]が押されている
-			m_aKeyStateJoypad[nIDPad][JOYPADKEY_LEFT] = true;
-		}
-		else
-		{
-			m_aKeyStateJoypad[nIDPad][JOYPADKEY_LEFT] = false;
-		}
+		m_aKeyStateJoypad[nIDPad][JOYPADKEY_LEFT] = false;
 	}
 
 	if (m_aJoypadState[nIDPad].rgdwPOV[0] >= 45 * 100 && m_aJoypadState[nIDPad].rgdwPOV[0] <= 135 * 100)
@@ -317,8 +296,7 @@ void CPad::SetKeyStateJoypad(int nIDPad)
 		m_aKeyStateJoypad[nIDPad][JOYPADKEY_RIGHT] = false;
 	}
 
-	if ((m_aJoypadState[nIDPad].rgdwPOV[0] >= 315 * 100 && m_aJoypadState[nIDPad].rgdwPOV[0] <= 360 * 100)
-	 || (m_aJoypadState[nIDPad].rgdwPOV[0] >= 0 * 100 && m_aJoypadState[nIDPad].rgdwPOV[0] <= 45 * 100))
+	if ((m_aJoypadState[nIDPad].rgdwPOV[0] >= 315 * 100 && m_aJoypadState[nIDPad].rgdwPOV[0] <= 360 * 100) || (m_aJoypadState[nIDPad].rgdwPOV[0] >= 0 * 100 && m_aJoypadState[nIDPad].rgdwPOV[0] <= 45 * 100))
 	{// 十字キー[上]が押されている
 		m_aKeyStateJoypad[nIDPad][JOYPADKEY_UP] = true;
 	}

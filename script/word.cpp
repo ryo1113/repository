@@ -1,6 +1,6 @@
 //======================================================================================================================
 //
-// 処理[word.cpp]
+// 単語やロゴ処理[word.cpp]
 // Author:RYO KANDA
 //
 //======================================================================================================================
@@ -14,7 +14,6 @@
 // マクロ定義
 //======================================================================================================================
 #define FLASH_CONT				(40)
-#define TRANSPARENT_BULLET		(0.5f)
 
 //======================================================================================================================
 // メンバ変数
@@ -41,8 +40,12 @@ HRESULT CWord::Load()
 	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/title.png", &m_pTexture[WORD_TITLE]);
 	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/result.png", &m_pTexture[WORD_RESULT]);
 	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/enter.png", &m_pTexture[WORD_ENTER]);
-	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/tutorial.png", &m_pTexture[WORD_TUTORIAL_BG]);
+	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/tutorial_00.png", &m_pTexture[WORD_TUTORIAL_BG_00]);
+	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/tutorial_01.png", &m_pTexture[WORD_TUTORIAL_BG_01]);
+	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/triangle.png", &m_pTexture[WORD_TRIANGLE]);
+
 	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/ranking.png", &m_pTexture[WORD_RANK]);
+
 	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/Bullet_image_00.png", &m_pTexture[WORD_BULLET_00]);
 	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/Bullet_image_01.png", &m_pTexture[WORD_BULLET_01]);
 
@@ -95,7 +98,7 @@ CWord *CWord::Create(WORD_TYPE type, D3DXVECTOR3 pos, D3DXVECTOR3 size)
 	}
 	else
 	{
-		pWord->SetCollar(D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.4f));
+		pWord->SetCollar(D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.7f));
 	}
 	
 	return pWord;
@@ -108,13 +111,8 @@ void CWord::Init()
 {
 	CScene2D::Init();
 
-	if (this->m_Type == WORD_BULLET_01)
-	{
-		SetCollar(D3DXCOLOR(1.0f, 1.0f, 1.0f, TRANSPARENT_BULLET));
-	}
-
-	nCntFlash = 0;
-	fFlashα = 1.0f / FLASH_CONT;
+	m_nCntFlash = 0;
+	m_fFlashα = 1.0f / FLASH_CONT;
 
 	m_texpos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	this->BindMoveTex(&m_texpos);
@@ -137,35 +135,7 @@ void CWord::Update()
 {
 	if (this->m_Type == WORD_ENTER)
 	{
-		D3DXCOLOR col = GetCollar();
-
-		col.a -= fFlashα;
-
-		if (++nCntFlash == FLASH_CONT || col.a <= 0.0f || col.a >= 1.0f)
-		{
-			nCntFlash = 0;
-			fFlashα *= -1;
-		}
-
-		SetCollar(col);
-	}
-
-
-	if (this->m_Type == WORD_BULLET_00 || this->m_Type == WORD_BULLET_01)
-	{
-		CKeyboard *pKey = CManager::GetInputKeyboard();
-
-		if (pKey->GetKeyboardTrigger(DIK_LSHIFT))
-		{
-			if (GetCollar().a == 1.0f)
-			{
-				SetCollar(D3DXCOLOR(1.0f, 1.0f, 1.0f, TRANSPARENT_BULLET));
-			}			
-			else if (GetCollar().a == TRANSPARENT_BULLET)
-			{
-				SetCollar(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
-			}
-		}
+		this->Flash();
 	}
 }
 
@@ -175,4 +145,31 @@ void CWord::Update()
 void CWord::Draw()
 {
 	CScene2D::Draw();
+}
+
+//======================================================================================================================
+// 点滅処理
+//======================================================================================================================
+void CWord::Flash()
+{
+	D3DXCOLOR col = GetCollar();
+
+	col.a -= m_fFlashα;
+
+	if (++m_nCntFlash == FLASH_CONT || col.a <= 0.0f || col.a >= 1.0f)
+	{
+		m_nCntFlash = 0;
+		m_fFlashα *= -1;
+	}
+
+	if (col.a > 1.0f)
+	{
+		col.a = 1.0f;
+	}
+	else if (col.a < 0.0f)
+	{
+		col.a = 0.0f;
+	}
+
+	SetCollar(col);
 }

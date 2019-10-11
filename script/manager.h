@@ -1,6 +1,6 @@
 //===========================================================================================================
 //
-// レンダリング処理 [manager.h]
+// manager処理 [manager.h]
 // Author:RYO KANDA
 //
 //===========================================================================================================
@@ -20,7 +20,6 @@ class CRenderer;
 
 class CPad;
 class CKeyboard;
-class CMouse;
 
 class CPause;
 
@@ -62,7 +61,6 @@ public:
 
 	static CKeyboard *GetInputKeyboard();
 	static CPad *GetInputPad();
-	static CMouse *GetInputMouse();
 
 	enum MODE
 	{//画面モードの種類
@@ -88,7 +86,6 @@ private:
 
 	static CKeyboard *m_pInputKeyboard;
 	static CPad *m_pInputPad;
-	static CMouse *m_pInputMouse;
 
 	static CSound *m_pSound;
 };

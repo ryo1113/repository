@@ -29,6 +29,7 @@ public:
 		SOUND_LABEL_SE_SHOT_01,		// ショット1
 		SOUND_LABEL_SE_ENEMYHIT,	// 敵ヒット
 		SOUND_LABEL_SE_ENTER,		// エンター
+		SOUND_LABEL_SE_SELECT,		// 選択音
 		SOUND_LABEL_MAX,
 	};
 
@@ -66,6 +67,7 @@ private:
 		{ "data/SE/shot_01.wav",0 },			// ショット1
 		{ "data/SE/enemyhit.wav",0 },			// 敵ヒット
 		{ "data/SE/enter.wav",0 },				// エンター
+		{ "data/SE/pauseselect.wav"}			// 選択音
 	};
 };
 

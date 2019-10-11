@@ -19,7 +19,7 @@
 #define PAUSE_SPACE					(100.0f)
 
 #define SELECT_COLOR				(D3DXCOLOR(1.0f,1.0f,0.0f,1.0f))
-#define NO_SELECT_COLOR				(D3DXCOLOR(0.5f,0.5f,0.5f,0.5f))
+#define NO_SELECT_COLOR				(D3DXCOLOR(0.5f,0.5f,0.5f,1.0f))
 
 //======================================================================================================================
 // ƒƒ“ƒo•Ï”
@@ -85,33 +85,33 @@ void CPause::Update()
 	switch (m_State)
 	{
 	case CPause::PAUSE_STATE_CONTINUE:
-		if (pKey->GetKeyboardTrigger(DIK_S) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_DOWN))
+		if (pKey->GetKeyboardRepeat(DIK_S) || pPad->GetJoypadRepeat(0, CPad::JOYPADKEY_DOWN))
 		{// ‰º
 			m_State = PAUSE_STATE_RETRY;
 		}
-		else if (pKey->GetKeyboardTrigger(DIK_W) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_UP))
+		else if (pKey->GetKeyboardRepeat(DIK_W) || pPad->GetJoypadRepeat(0, CPad::JOYPADKEY_UP))
 		{// ã
 			m_State = PAUSE_STATE_QUIT;
 		}
 		break;
 
 	case CPause::PAUSE_STATE_RETRY:
-		if (pKey->GetKeyboardTrigger(DIK_S) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_DOWN))
+		if (pKey->GetKeyboardRepeat(DIK_S) || pPad->GetJoypadRepeat(0, CPad::JOYPADKEY_DOWN))
 		{// ‰º
 			m_State = PAUSE_STATE_QUIT;
 		}
-		else if (pKey->GetKeyboardTrigger(DIK_W) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_UP))
+		else if (pKey->GetKeyboardRepeat(DIK_W) || pPad->GetJoypadRepeat(0, CPad::JOYPADKEY_UP))
 		{// ã
 			m_State = PAUSE_STATE_CONTINUE;
 		}
 		break;
 
 	case CPause::PAUSE_STATE_QUIT:
-		if (pKey->GetKeyboardTrigger(DIK_S) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_DOWN))
+		if (pKey->GetKeyboardRepeat(DIK_S) || pPad->GetJoypadRepeat(0, CPad::JOYPADKEY_DOWN))
 		{// ‰º
 			m_State = PAUSE_STATE_CONTINUE;
 		}
-		else if (pKey->GetKeyboardTrigger(DIK_W) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_UP))
+		else if (pKey->GetKeyboardRepeat(DIK_W) || pPad->GetJoypadRepeat(0, CPad::JOYPADKEY_UP))
 		{// ã
 			m_State = PAUSE_STATE_RETRY;
 		}
@@ -120,6 +120,12 @@ void CPause::Update()
 
 	// ‘I‘ð‚µ‚Ä‚¢‚éF‚É‚·‚é
 	m_pWord[m_State]->SetCollar(SELECT_COLOR);
+
+	if (pKey->GetKeyboardRepeat(DIK_S) || pPad->GetJoypadRepeat(0, CPad::JOYPADKEY_DOWN) || (pKey->GetKeyboardRepeat(DIK_W) || pPad->GetJoypadRepeat(0, CPad::JOYPADKEY_UP)))
+	{
+		CManager::SetSound(CSound::SOUND_LABEL_SE_SELECT);
+	}
+
 
 	if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
 	{

@@ -19,14 +19,13 @@
 #include "word.h"
 #include "score.h"
 
-#ifdef _DEBUG
 #include "keyboard.h"
 #include "pad.h"
-#endif
 
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
+#define TRANSPARENT_BULLET		(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f))
 
 //======================================================================================================================
 // メンバ変数
@@ -62,14 +61,15 @@ void CGame::Init()
 
 	CScore::Create(D3DXVECTOR3(1250.0f, 60.0f, 0.0f), D3DXVECTOR3(60.0f, 100.0f, 0.0f));
 
-	CWord::Create(CWord::WORD_BULLET_00, D3DXVECTOR3(100.0f, 75.0f, 0.0f), D3DXVECTOR3(100.0f, 100.0f, 0.0f));
-	CWord::Create(CWord::WORD_BULLET_01, D3DXVECTOR3(300.0f, 75.0f, 0.0f), D3DXVECTOR3(100.0f, 100.0f, 0.0f));
+	m_pWord[0] = CWord::Create(CWord::WORD_BULLET_00, D3DXVECTOR3(100.0f, 75.0f, 0.0f), D3DXVECTOR3(150.0f, 150.0f, 0.0f));
+	m_pWord[1] = CWord::Create(CWord::WORD_BULLET_01, D3DXVECTOR3(250.0f, 75.0f, 0.0f), D3DXVECTOR3(150.0f, 150.0f, 0.0f));
 
 	CCamera::Create();
 
 	srand((unsigned int)time(NULL));
 	nCount = 0;
 
+	m_pWord[1]->SetCollar(TRANSPARENT_BULLET);
 }
 
 //======================================================================================================================
@@ -105,6 +105,22 @@ void CGame::Update()
 	CKeyboard *pKey = CManager::GetInputKeyboard();
 	CPad *pPad = CManager::GetInputPad();
 
+	for (int nCnt = 0; nCnt < BULLET_TYPE; nCnt++)
+	{
+		if (pKey->GetKeyboardTrigger(DIK_LSHIFT) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_Y))
+		{
+			if (m_pWord[nCnt]->GetCollar().a == 1.0f)
+			{
+				m_pWord[nCnt]->SetCollar(TRANSPARENT_BULLET);
+			}
+			else if (m_pWord[nCnt]->GetCollar().a == TRANSPARENT_BULLET.a)
+			{
+				m_pWord[nCnt]->SetCollar(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+			}
+		}
+	}
+
+	// ポーズに切替
 	if (pKey->GetKeyboardTrigger(DIK_P) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_START))
 	{
 		if (!CRenderer::GetFade())

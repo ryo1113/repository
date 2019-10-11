@@ -44,7 +44,7 @@ void CTitle::Init()
 	CBg::Create(0.0005f);
 
 	CWord::Create(CWord::WORD_TITLE, D3DXVECTOR3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.0f), D3DXVECTOR3(800.0f, 100.0f, 0.0f));
-	CWord::Create(CWord::WORD_ENTER, D3DXVECTOR3(1030.0f, 670.0f, 0.0f), D3DXVECTOR3(500.0f, 70.0f, 0.0f));
+	CWord::Create(CWord::WORD_ENTER, D3DXVECTOR3(1000.0f, 670.0f, 0.0f), D3DXVECTOR3(550.0f, 80.0f, 0.0f));
 }
 
 //======================================================================================================================

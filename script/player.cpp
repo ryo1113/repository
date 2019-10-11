@@ -9,7 +9,6 @@
 
 #include "keyboard.h"
 #include "pad.h"
-#include "mouse.h"
 
 #include "bullet.h"
 #include "enemy.h"
@@ -22,6 +21,8 @@
 #define PLAYER_GRAVITY			(0.4f)
 
 #define TURN_FRAME_PLAYER		(1.5f)
+
+#define POD_ROT(e)				(D3DXToRadian(180 / 8 * e))
 
 //======================================================================================================================
 // プロトタイプ宣言
@@ -178,50 +179,49 @@ void CPlayer::MoveSpeedPlayer()
 {
 	CKeyboard *pKey = CManager::GetInputKeyboard();
 	CPad *pPad = CManager::GetInputPad();
-	CMouse *pMouse = CManager::GetInputMouse();
 
 	//キーボード
 	if (pKey->GetKeyboardPress(DIK_W) && pKey->GetKeyboardPress(DIK_S)){}
 	else if (pKey->GetKeyboardPress(DIK_D) && pKey->GetKeyboardPress(DIK_A)){}
 
 	else if (pKey->GetKeyboardPress(DIK_D) && pKey->GetKeyboardPress(DIK_S))
-	{
+	{// 右下
 		m_move += MoveVector(D3DXVECTOR3(1.0f, 1.0f, 0.0f), PLAYER_SPEED);
 		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * -1.0f / 8.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_D) && pKey->GetKeyboardPress(DIK_W))
-	{
+	{// 右上
 		m_move += MoveVector(D3DXVECTOR3(1.0f, -1.0f, 0.0f), PLAYER_SPEED);
 		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 16.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_A) && pKey->GetKeyboardPress(DIK_W))
-	{
+	{// 左上
 		m_move += MoveVector(D3DXVECTOR3(-1.0f, -1.0f, 0.0f), PLAYER_SPEED);
 		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 6.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_A) && pKey->GetKeyboardPress(DIK_S))
-	{
+	{// 左下
 		m_move += MoveVector(D3DXVECTOR3(-1.0f, 1.0f, 0.0f), PLAYER_SPEED);
 		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 3.0f));
 	}
 
 	else if (pKey->GetKeyboardPress(DIK_D))
-	{
+	{// 右
 		m_move += MoveVector(D3DXVECTOR3(1.0f, 0.0f, 0.0f), PLAYER_SPEED);
 		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_A))
-	{
+	{// 左
 		m_move += MoveVector(D3DXVECTOR3(-1.0f, 0.0f, 0.0f), PLAYER_SPEED);
 		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 4.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_W))
-	{
+	{// 上
 		m_move += MoveVector(D3DXVECTOR3(0.0f, -1.0f, 0.0f), PLAYER_SPEED);
 		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 8.0f));
 	}
 	else if (pKey->GetKeyboardPress(DIK_S))
-	{
+	{// 下
 		m_move += MoveVector(D3DXVECTOR3(0.0f, 1.0f, 0.0f), PLAYER_SPEED);
 		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * -1.0f / 4.0f));
 	}
@@ -230,7 +230,8 @@ void CPlayer::MoveSpeedPlayer()
 		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	}
 
-	float fV, fH;
+	// 入力された X、Y
+	float fH, fV;
 	pPad->GetJoypadStickLeft(0, &fH, &fV);
 
 	//ゲームパッド
@@ -239,28 +240,57 @@ void CPlayer::MoveSpeedPlayer()
 		// 移動
 		m_move += Move(atan2f(fH, fV), PLAYER_SPEED);
 
-		// 向き
-		SetDifRot(D3DXVECTOR3(0.0f, 0.0f, -atan2f(fH, fV)));
-	}
-	
-	//fH = (float)pMouse->GetMouseX();
-	//fV = (float)pMouse->GetMouseY();
+		float fRot = -atan2f(fH, fV);
 
-	////マウス
-	//if (fH != 0 || fV != 0)
-	//{
-	//	m_move = MoveMouse(D3DXVECTOR3(fH, fV, 0.0f));
-	//} 
+		{// 向き
+			if (-POD_ROT(1) < fRot && fRot < POD_ROT(1))
+			{// 上
+				SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 8.0f));
+			}
+			else if (POD_ROT(1) < fRot && fRot < POD_ROT(3))
+			{// 左上
+				SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 6.0f));
+			}
+			else if (POD_ROT(3) < fRot && fRot < POD_ROT(5))
+			{// 左
+				SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 4.0f));
+			}
+			else if (POD_ROT(5) < fRot && fRot < POD_ROT(7))
+			{// 左下
+				SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 3.0f));
+			}
+
+			else if (POD_ROT(7) <= fRot || fRot <= -POD_ROT(7))
+			{// 下
+				SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * -1.0f / 4.0f));
+			}
+			else if (-POD_ROT(7) < fRot && fRot < -POD_ROT(5))
+			{// 右下
+				SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * -1.0f / 8.0f));
+			}
+			else if (-POD_ROT(5) < fRot && fRot < -POD_ROT(3))
+			{// 右
+				SetDifRot(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+			}
+			else if (-POD_ROT(3) < fRot && fRot < -POD_ROT(1))
+			{// 右上
+				SetDifRot(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 1.0f / 16.0f));
+			}
+		}
+	}
+
+
 }
 
 //======================================================================================================================
-// 弾の発射
+// 弾の種類と発射
 //======================================================================================================================
 void CPlayer::BulletShot()
 {
 	CKeyboard *pKey = CManager::GetInputKeyboard();
+	CPad *pPad = CManager::GetInputPad();
 
-	if (pKey->GetKeyboardTrigger(DIK_LSHIFT))
+	if (pKey->GetKeyboardTrigger(DIK_LSHIFT) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_Y))
 	{
 		m_nType += 1;
 
@@ -270,7 +300,7 @@ void CPlayer::BulletShot()
 		}
 	}
 
-	if (pKey->GetKeyboardTrigger(DIK_SPACE))
+	if (pKey->GetKeyboardTrigger(DIK_SPACE) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_RIGHT_SHOULDER))
 	{
 		CBullet::Create(GetPos() + D3DXVECTOR3(GetLength() * cosf(-GetRot().z),
 											   GetLength() * sinf(-GetRot().z), 0.0f),
