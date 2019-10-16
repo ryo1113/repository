@@ -56,6 +56,8 @@ private:
 	void MoveSpeedEnemy();
 	void HitAllEnemy();
 
+	D3DXVECTOR3 Vec3xVec3(const D3DXVECTOR3 A, const D3DXVECTOR3 B);
+
 	static LPDIRECT3DTEXTURE9 m_pTexture[];
 
 	static int nNumEnemy;

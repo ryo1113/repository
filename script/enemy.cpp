@@ -327,7 +327,7 @@ void CEnemy::MoveSpeedEnemy()
 		{
 			CScene *pScene = GetScene(OBJTYPE_ENEMY, nCnt);
 
-			if (!pScene || GetID() == nCnt)
+			if (!pScene)
 				continue;
 
 			CEnemy *pEnemy = (CEnemy*)pScene;
@@ -340,9 +340,9 @@ void CEnemy::MoveSpeedEnemy()
 			D3DXVECTOR3 check = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 			D3DXVECTOR3 RotDir = D3DXVECTOR3(cosf(m_rot.z), -sinf(m_rot.z), 0.0f);
-
-			D3DXVec3Add(&check, &Dif, &RotDir);
-			D3DXVec3Add(&check, &check, &RotDir);
+			
+			check = Vec3xVec3(Dif, RotDir);
+			check = Vec3xVec3(check, RotDir);
 
 			float fLength = D3DXVec3Length(&check);
 
@@ -446,6 +446,20 @@ void CEnemy::HitAllEnemy()
 			break;
 		}
 	}
+}
+
+//======================================================================================================================
+// ÉxÉNÉ^Å[ÇRÇÃÇªÇÍÇºÇÍÇÃä|ÇØéZ
+//======================================================================================================================
+D3DXVECTOR3 CEnemy::Vec3xVec3(D3DXVECTOR3 A, D3DXVECTOR3 B)
+{
+	D3DXVECTOR3 Vec;
+
+	Vec.x = A.x * B.x;
+	Vec.y = A.y * B.y;
+	Vec.z = A.z * B.z;
+
+	return Vec;
 }
 
 //======================================================================================================================
