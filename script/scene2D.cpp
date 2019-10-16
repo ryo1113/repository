@@ -140,13 +140,96 @@ bool CScene2D::HitShapeCollision(CScene2D *scene2D)
 	}
 
 	float fRadius = fRadiusA + fRadiusB;
-
-	if (D3DXVec3Dot(&(m_pos - scene2D->m_pos), &(m_pos - scene2D->m_pos)) > fRadius * fRadius)
-	{// 半径+半径より遠いいか
+	
+	// 半径+半径より遠いいか
+	if (D3DXVec3LengthSq(&(m_pos - scene2D->m_pos)) > fRadius * fRadius)
+	{
 		return false;
 	}
 
 	return true;
+}
+
+//======================================================================================================================
+// 当たり判定(四角と円)
+//======================================================================================================================
+bool CScene2D::HitBoxCollision(CScene2D *scene2D)
+{
+	VERTEX_2D *pVtx;
+
+	//頂点データの範囲をロックし、頂点バッファのポインタを取得
+	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+	D3DXVECTOR3 pos[4] =
+	{
+		pVtx[0].pos,
+		pVtx[1].pos,
+		pVtx[3].pos,
+		pVtx[2].pos
+	};
+
+	//頂点データをアンロック
+	m_pVtxBuff->Unlock();
+
+	// 当たり判定調整
+	for (int nCnt = 0; nCnt < 4; nCnt++)
+	{
+		pos[nCnt].x -= (pos[nCnt].x - GetPos().x) / 1.5f;
+		pos[nCnt].y -= (pos[nCnt].y - GetPos().y) / 1.1f;
+	}
+
+	D3DXVECTOR3 dif = {};
+	D3DXVECTOR3 posdif = {};
+
+	for (int nCnt = 0; nCnt < 4; nCnt++)
+	{
+		posdif = scene2D->GetPos() - pos[nCnt];
+
+		// 円の中に頂点がないか
+		if (scene2D->GetLength() * scene2D->GetLength() >= D3DXVec3LengthSq(&posdif))
+		{
+			return true;
+		}
+	}
+
+	// 長方形の中に円の中心があるか
+	float fRot[2] = {};
+
+	posdif = scene2D->GetPos() - pos[3];
+	dif = pos[0] - pos[3];
+
+	fRot[0] = atan2f(D3DXVec2CCW(&(D3DXVECTOR2)posdif, &(D3DXVECTOR2)dif), D3DXVec3Dot(&posdif, &dif));
+
+	posdif = scene2D->GetPos() - pos[1];
+	dif = pos[2] - pos[1];
+
+	fRot[1] = atan2f(D3DXVec2CCW(&(D3DXVECTOR2)posdif, &(D3DXVECTOR2)dif), D3DXVec3Dot(&posdif, &dif));
+
+	if (0 <= fRot[0] && fRot[0] <= D3DX_PI / 2.0f && 0 <= fRot[1] && fRot[1] <= D3DX_PI / 2)
+	{
+		return true;
+	}
+
+	// 線分と円の判定
+	for (int nCnt = 0; nCnt < 4; nCnt++)
+	{
+		posdif = pos[nCnt] - scene2D->GetPos();
+
+		dif = pos[(nCnt + 1) % 4] - pos[nCnt];
+
+		float fDif = -D3DXVec3Dot(&dif, &posdif) / D3DXVec3LengthSq(&dif);
+
+		D3DXVec3Add(&dif, &pos[nCnt], &(dif * ((fDif < 0) ? 0 : (fDif > 1) ? 1 : fDif)));
+
+		fDif = D3DXVec3LengthSq(&(scene2D->GetPos() - dif));
+
+		if (fDif < (scene2D->GetLength() * scene2D->GetLength()))
+		{
+  			return true;
+		}
+	}
+
+	return false;
 }
 
 //======================================================================================================================

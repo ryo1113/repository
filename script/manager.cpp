@@ -64,7 +64,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 {
 	m_pRenderer = new CRenderer;
 	// 初期化処理(ウィンドウを作成してから行う)
-	if (FAILED(m_pRenderer->Init(hWnd, FALSE)))			// FALSEでフル画面
+	if (FAILED(m_pRenderer->Init(hWnd, TRUE)))			// FALSEでフル画面
 	{
 		return -1;
 	}

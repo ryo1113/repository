@@ -46,6 +46,7 @@ public:
 	void Vertex(VERTEX_2D *pVtx);
 
 	bool HitShapeCollision(CScene2D *scene2D);
+	bool HitBoxCollision(CScene2D *scene2D);
 
 	D3DXVECTOR3 GetPos();
 	D3DXVECTOR3 GetRot();

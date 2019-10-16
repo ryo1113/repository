@@ -40,6 +40,8 @@ public:
 	void Update();
 	void Draw();
 
+	void HitPlayer();
+
 private:
 	void MoveSpeedPlayer();
 	void BulletShot();

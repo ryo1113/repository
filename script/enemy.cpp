@@ -12,6 +12,7 @@
 
 #include "bullet.h"
 #include "explosion.h"
+#include "player.h"
 #include "score.h"
 
 //======================================================================================================================
@@ -186,30 +187,28 @@ void CEnemy::Update()
 		HitAllEnemy();
 	}
 
-	{// 移動更新
+	// 移動更新
+	D3DXVECTOR3 pos = GetPos();
 
-		D3DXVECTOR3 pos = GetPos();
+	MoveSpeedEnemy();
 
-		MoveSpeedEnemy();
+	m_move.x -= m_move.x * 1 / 4;
+	m_move.y -= m_move.y * 1 / 4;
 
-		m_move.x -= m_move.x * 1 / 4;
-		m_move.y -= m_move.y * 1 / 4;
-
-		if (fabsf(m_move.x) < 0.1f)
-		{
-			m_move.x = 0;
-		}
-		if (fabsf(m_move.y) < 0.1f)
-		{
-			m_move.y = 0;
-		}
-
-		SetPos(pos + m_move);
+	if (fabsf(m_move.x) < 0.1f)
+	{
+		m_move.x = 0;
 	}
+	if (fabsf(m_move.y) < 0.1f)
+	{
+		m_move.y = 0;
+	}
+
+	SetPos(pos + m_move);
 
 	if (GetPos().x + GetSize().x / 1.5f <= 0.0f - CCamera::GetCamera()->x || fabsf(GetPos().y - SCREEN_HEIGHT / 2) >= SCREEN_HEIGHT)
 	{// 画面外（左）
- 		Uninit();
+		Uninit();
 	}
 }
 
@@ -300,7 +299,7 @@ void CEnemy::MoveSpeedEnemy()
 			Marginalize(&fTargetDir);
 
 			// 視野角外
-			float fDir[2] = { D3DXToRadian(- VIEWING / 2),D3DXToRadian(+ VIEWING / 2) };
+			float fDir[2] = { D3DXToRadian(- VIEWING / 2),D3DXToRadian( VIEWING / 2) };
 			for (int nCnt = 0; nCnt < 2; nCnt++) Marginalize(&fDir[nCnt]);
 
 			if (fDir[0] <= fTargetDir && fTargetDir <= fDir[1])
@@ -405,7 +404,7 @@ void CEnemy::MoveSpeedEnemy()
 }
 
 //======================================================================================================================
-// ヘリと全ての敵
+// ヘリと全て
 //======================================================================================================================
 void CEnemy::HitAllEnemy()
 {
@@ -425,6 +424,24 @@ void CEnemy::HitAllEnemy()
 		if (HitShapeCollision(pEnemy))
 		{
 			pEnemy->HitEnemy(false);
+
+			break;
+		}
+	}
+
+	// 自機に当たる
+	for (int nCnt = 0; nCnt < MAX_2D; nCnt++)
+	{
+		CScene *pScene = GetScene(OBJTYPE_PLAYER, nCnt);
+
+		if (!pScene)
+			continue;
+
+		CPlayer *pPlayer = (CPlayer*)pScene;
+
+		if (HitBoxCollision(pPlayer))
+		{
+			pPlayer->HitPlayer();
 
 			break;
 		}
