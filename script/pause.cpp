@@ -129,6 +129,8 @@ void CPause::Update()
 
 	if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
 	{
+		CManager::SetSound();
+
 		if (m_State == PAUSE_STATE_CONTINUE)
 		{
 			CManager::SetMode(CManager::MODE_GAME);

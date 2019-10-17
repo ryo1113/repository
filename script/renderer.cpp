@@ -238,8 +238,6 @@ void CRenderer::SetFade(CManager::MODE modeNext)
 {
 	if (!m_Fade)
 	{
-		CManager::SetSound();
-
 		m_Fade = CFade::Create(modeNext);
 	}
 }

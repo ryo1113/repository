@@ -65,6 +65,8 @@ void CTitle::Update()
 
 	if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
 	{
+		CManager::SetSound();
+
 		CRenderer::SetFade(CManager::MODE_TUTORIAL);
 	}
 	
