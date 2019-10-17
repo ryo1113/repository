@@ -25,15 +25,6 @@ public:
 	CGame() {}
 	~CGame() {}
 
-	typedef enum
-	{//âÊñ èÛë‘
-		GAMESTATE_NONE = 0,			//âΩÇ‡ÇµÇƒÇ¢Ç»Ç¢Ç∆Ç´
-		GAMESTATE_NOMAL,			//í èÌ
-		GAMESTATE_PAUSE,			//àÍéûí‚é~
-		GAMESTATE_END,
-		GAMESTATE_MAX
-	} GAMESTATE;
-
 	static CGame *Create();
 
 	void Init();
@@ -41,12 +32,7 @@ public:
 	void Update();
 	void Draw();
 
-	void SetGameState(GAMESTATE state);
-	GAMESTATE GetGameState();
-
 private:
-
-	GAMESTATE g_GameState = GAMESTATE_MAX;
 
 	CWord *m_pWord[BULLET_TYPE];
 

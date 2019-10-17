@@ -128,9 +128,12 @@ void CTutorial::Update()
 
 	if ((pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B)) && m_nNext == TUTORIAL_BG_NUM - 1)
 	{
-		CManager::SetSound();
+		if (!CRenderer::GetFade())
+		{
+			CManager::SetSound();
 
-		CRenderer::SetFade(CManager::MODE_GAME);
+			CRenderer::SetFade(CManager::MODE_GAME);
+		}
 	}
 }
 

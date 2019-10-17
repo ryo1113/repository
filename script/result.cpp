@@ -77,9 +77,12 @@ void CResult::Update()
 
 	if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
 	{
-		CManager::SetSound();
+		if (!CRenderer::GetFade())
+		{
+			CManager::SetSound();
 
-		CRenderer::SetFade(CManager::MODE_TITLE);
+			CRenderer::SetFade(CManager::MODE_TITLE);
+		}
 	}
 	if (--m_FadeCount == 0)
 	{
@@ -93,20 +96,4 @@ void CResult::Update()
 void CResult::Draw()
 {
 
-}
-
-//======================================================================================================================
-// リザルト状態の設定
-//======================================================================================================================
-void CResult::SetResultState(RESULTSTATE state)
-{
-	g_ResultState = state;
-}
-
-//======================================================================================================================
-// リザルト状態の取得
-//======================================================================================================================
-CResult::RESULTSTATE CResult::GetResultState(void)
-{
-	return g_ResultState;
 }

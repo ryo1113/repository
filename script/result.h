@@ -18,13 +18,6 @@ public:
 	CResult() {}
 	~CResult() {}
 
-	enum RESULTSTATE
-	{//ƒŠƒUƒ‹ƒg‰æ–Ê
-		RESULTSTATE_WIN = 0,
-		RESULTSTATE_LOSE,
-		RESULTSTATE_MAX
-	};
-
 	static CResult *Create();
 
 	void Init();
@@ -33,11 +26,6 @@ public:
 	void Draw();
 
 private:
-
-	void SetResultState(RESULTSTATE state);
-	RESULTSTATE GetResultState(void);
-
-	RESULTSTATE g_ResultState = RESULTSTATE_MAX;
 	int m_FadeCount;
 };
 
