@@ -1,6 +1,6 @@
 //======================================================================================================================
 //
-// manager処理 [manager.cpp]
+// 管理処理 [manager.cpp]
 // Author:RYO KANDA
 //
 //======================================================================================================================
@@ -36,10 +36,10 @@
 //======================================================================================================================
 // メンバ変数
 //======================================================================================================================
-CRenderer *CManager::m_pRenderer = NULL;
+CRenderer *CManager::m_pRenderer = {};
 
-CKeyboard *CManager::m_pInputKeyboard = NULL;
-CPad *CManager::m_pInputPad = NULL;
+CKeyboard *CManager::m_pInputKeyboard = {};
+CPad *CManager::m_pInputPad = {};
 
 CModeBase *CManager::m_pMode = {};
 CManager::MODE CManager::m_Mode = {};
@@ -69,60 +69,30 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return -1;
 	}
 
+	// キーボード
 	m_pInputKeyboard = new CKeyboard;
 	if (FAILED(m_pInputKeyboard->Init(hInstance, hWnd)))
 	{
 		return -1;
 	}
 
+	// パッド
 	m_pInputPad = new CPad;
 	if (FAILED(m_pInputPad->Init(hInstance, hWnd)))
 	{
 		return -1;
 	}
 
+	// サウンド
 	m_pSound = new CSound;
-	m_pSound->InitSound(hWnd);
+	if (FAILED(m_pSound->InitSound(hWnd)))
+	{
+		return -1;
+	}
 
 	// テクスチャ管理(ないとき)
-	if (FAILED(CBullet::Load()))
+	if (FAILED(this->TexLoad(hWnd)))
 	{
-		MessageBox(hWnd, "テクスチャがありません", "Bullet", MB_ICONWARNING);// 確認用
-		return -1;
-	}
-	if (FAILED(CPlayer::Load()))
-	{
-		MessageBox(hWnd, "テクスチャがありません", "Player", MB_ICONWARNING);// 確認用
-		return -1;
-	}
-	if (FAILED(CExplosion::Load()))
-	{
-		MessageBox(hWnd, "テクスチャがありません", "Explosion", MB_ICONWARNING);// 確認用
-		return -1;
-	}
-	if (FAILED(CEffect::Load()))
-	{
-		MessageBox(hWnd, "テクスチャがありません", "Effect", MB_ICONWARNING);// 確認用
-		return -1;
-	}
-	if (FAILED(CBg::Load()))
-	{
-		MessageBox(hWnd, "テクスチャがありません", "Bg", MB_ICONWARNING);// 確認用
-		return -1;
-	}
-	if (FAILED(CEnemy::Load()))
-	{
-		MessageBox(hWnd, "テクスチャがありません", "Enemy", MB_ICONWARNING);// 確認用
-		return -1;
-	}
-	if (FAILED(CNumber::Load()))
-	{
-		MessageBox(hWnd, "テクスチャがありません", "Number", MB_ICONWARNING);// 確認用
-		return -1;
-	}
-	if (FAILED(CWord::Load()))
-	{
-		MessageBox(hWnd, "テクスチャがありません", "Word", MB_ICONWARNING);// 確認用
 		return -1;
 	}
 
@@ -180,13 +150,7 @@ void CManager::Uninit()
 	}
 
 	// テクスチャ破棄
-	CBullet::Unload();
-	CEffect::Unload();
-	CEnemy::Unload();
-	CExplosion::Unload();
-	CPlayer::Unload();
-	CBg::Unload();
-	CWord::Unload();
+	this->TexUnload();
 
 	CScene::ReleaseAll();
 }
@@ -250,17 +214,12 @@ CPad *CManager::GetInputPad()
 //======================================================================================================================
 void CManager::SetMode(MODE mode)
 {
-	if (m_pMode && (mode != MODE_PAUSE && (m_Mode != MODE_PAUSE || CPause::GetPauseState() != CPause::PAUSE_STATE_CONTINUE)))
+	// ポーズに遷移しない時	コンテニューを押してない時
+	if (m_pMode && mode != MODE_PAUSE && CPause::GetPauseState() != CPause::PAUSE_STATE_CONTINUE)
 	{
 		m_pSound->StopSound();
 
 		m_pMode->Uninit();
-
-		if (m_pPause)
-		{
-			delete m_pPause;
-			m_pPause = NULL;
-		}
 
 		CScene::ReleaseAll();
 
@@ -268,9 +227,21 @@ void CManager::SetMode(MODE mode)
 		m_pMode = NULL;
 	}
 
+	// 前がポーズの時
+	if (m_pPause && m_Mode == MODE_PAUSE)
+	{
+		if (CPause::GetPauseState() == CPause::PAUSE_STATE_CONTINUE)
+		{
+			m_pPause->Uninit();
+		}
+
+		delete m_pPause;
+		m_pPause = NULL;
+	}
+
 	m_Mode = mode;
 
-	if (mode == MODE_PAUSE || CPause::GetPauseState() != CPause::PAUSE_STATE_CONTINUE)
+	if (mode == MODE_PAUSE || (!m_pPause && CPause::GetPauseState() != CPause::PAUSE_STATE_CONTINUE))
 	{
 		switch (mode)
 		{
@@ -297,20 +268,74 @@ void CManager::SetMode(MODE mode)
 		case MODE_PAUSE:
 			m_pPause = CPause::Create();
 			break;
-
 		}
 	}
 	else
-	{
-		if (m_pPause)
-		{
-			CPause::SetPauseState(CPause::PAUSE_STATE_NONE);
-			m_pPause->Uninit();
-
-			delete m_pPause;
-			m_pPause = NULL;
-		}
+	{// コンテニューを押したとき
+		CPause::SetPauseState(CPause::PAUSE_STATE_NONE);
 	}
+}
+
+//======================================================================================================================
+// テクスチャの読み込み
+//======================================================================================================================
+HRESULT CManager::TexLoad(HWND hWnd)
+{
+	if (FAILED(CBullet::Load()))
+	{
+		MessageBox(hWnd, "テクスチャがありません", "Bullet", MB_ICONWARNING);
+		return -1;
+	}
+	if (FAILED(CPlayer::Load()))
+	{
+		MessageBox(hWnd, "テクスチャがありません", "Player", MB_ICONWARNING);
+		return -1;
+	}
+	if (FAILED(CExplosion::Load()))
+	{
+		MessageBox(hWnd, "テクスチャがありません", "Explosion", MB_ICONWARNING);
+		return -1;
+	}
+	if (FAILED(CEffect::Load()))
+	{
+		MessageBox(hWnd, "テクスチャがありません", "Effect", MB_ICONWARNING);
+		return -1;
+	}
+	if (FAILED(CBg::Load()))
+	{
+		MessageBox(hWnd, "テクスチャがありません", "Bg", MB_ICONWARNING);
+		return -1;
+	}
+	if (FAILED(CEnemy::Load()))
+	{
+		MessageBox(hWnd, "テクスチャがありません", "Enemy", MB_ICONWARNING);
+		return -1;
+	}
+	if (FAILED(CNumber::Load()))
+	{
+		MessageBox(hWnd, "テクスチャがありません", "Number", MB_ICONWARNING);
+		return -1;
+	}
+	if (FAILED(CWord::Load()))
+	{
+		MessageBox(hWnd, "テクスチャがありません", "Word", MB_ICONWARNING);
+		return -1;
+	}
+	return S_OK;
+}
+
+//======================================================================================================================
+// テクスチャの破棄
+//======================================================================================================================
+void CManager::TexUnload()
+{
+	CBullet::Unload();
+	CEffect::Unload();
+	CEnemy::Unload();
+	CExplosion::Unload();
+	CPlayer::Unload();
+	CBg::Unload();
+	CWord::Unload();
 }
 
 //======================================================================================================================
@@ -322,20 +347,23 @@ CManager::MODE CManager::GetMode()
 }
 
 //======================================================================================================================
-// ランダム数値の取得
+// 乱数値の取得(整数)
 //======================================================================================================================
-int CManager::random(int min, int max)
+int CManager::Random(int min, int max)
 {
 	// 乱数生成器
 	static std::mt19937_64 create(0);
 
-	// 一様分布整数 (int) の分布生成器
+	// 一様分布整数の分布生成器
 	std::uniform_int_distribution<int> nGet(min, max);
 
 	// 乱数を生成
 	return nGet(create);
 }
 
+//======================================================================================================================
+// サウンドの再生
+//======================================================================================================================
 void CManager::SetSound(CSound::SOUND_LABEL label)
 {
 	m_pSound->PlaySound(label);

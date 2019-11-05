@@ -18,6 +18,7 @@
 
 #include "word.h"
 #include "score.h"
+#include "number.h"
 
 #include "keyboard.h"
 #include "pad.h"
@@ -25,7 +26,8 @@
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-#define TRANSPARENT_BULLET		(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f))
+#define TYPEDISPLAY_BULLET		(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f))
+#define PREPARATION_TIME		(3)
 
 //======================================================================================================================
 // メンバ変数
@@ -54,11 +56,6 @@ void CGame::Init()
 
 	CPlayer::Create();
 
-	CEnemy::Create(D3DXVECTOR3(1000.0f, 500.0f, 0.0f), CEnemy::ENEMYTYPE_PART1);
-	CEnemy::Create(D3DXVECTOR3(1240.0f, 300.0f, 0.0f), CEnemy::ENEMYTYPE_PART1);
-
-	CEnemy::Create(D3DXVECTOR3(1700.0f, 300.0f, 0.0f), CEnemy::ENEMYTYPE_PART2, 1.5f);
-
 	CScore::Create(D3DXVECTOR3(1250.0f, 60.0f, 0.0f), D3DXVECTOR3(60.0f, 100.0f, 0.0f));
 
 	m_pWord[0] = CWord::Create(CWord::WORD_BULLET_00, D3DXVECTOR3(100.0f, 75.0f, 0.0f), D3DXVECTOR3(150.0f, 150.0f, 0.0f));
@@ -66,10 +63,15 @@ void CGame::Init()
 
 	CCamera::Create();
 
-	srand((unsigned int)time(NULL));
-	nCount = 0;
+	nCount = PREPARATION_TIME * 60;
+	m_State = GAMESTATE_PREPARATION;
 
-	m_pWord[1]->SetCollar(TRANSPARENT_BULLET);
+	m_pWord[1]->SetCollar(TYPEDISPLAY_BULLET);
+
+	m_pBg = CWord::Create(CWord::WORD_BLACK_BG, D3DXVECTOR3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.0f), D3DXVECTOR3(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f));
+
+	m_pNumber = CNumber::Create(D3DXVECTOR3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.0f), D3DXVECTOR3(SCREEN_WIDTH / 8.0f, SCREEN_HEIGHT / 3.0f, 0.0f));
+	m_pNumber->SetNum(PREPARATION_TIME);
 }
 
 //======================================================================================================================
@@ -85,23 +87,79 @@ void CGame::Uninit()
 //======================================================================================================================
 void CGame::Update()
 {
-	CCamera::MoveCamera(D3DXVECTOR3(-0.2f, 0.0f, 0.0f));
+	// 弾の種類表示
+	this->BulletTypeDisplay();
 
-	nCount++;
+	switch (m_State)
+	{
+	case CGame::GAMESTATE_PREPARATION:
 
-	if (nCount % 400 == 0)
-	{
-		CEnemy::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::random(100, 550), 0.0f), CEnemy::ENEMYTYPE_PART2, nCount / 500.0f);
-	}
-	if (nCount % 200 == 0)
-	{
-		CEnemy::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::random(100, 550), 0.0f), CEnemy::ENEMYTYPE_PART3, 2.0f);
-	}
-	if (nCount % 100 == 0 || nCount % 125 == 0)
-	{
-		CEnemy::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::random(100, 650), 0.0f), CEnemy::ENEMYTYPE_PART1, (float)CManager::random(100, 200) / 100.0f);
-	}
+		if (--nCount <= 0)
+		{
+			if (m_pNumber)
+			{
+				m_pNumber->Uninit();
+				m_pNumber = NULL;
+			}
+			if (m_pBg)
+			{
+				m_pBg->Uninit();
+				m_pBg = NULL;
+			}
 
+			nCount = 0;
+			m_State = GAMESTATE_NORMAL;
+		}
+		else if (nCount % 60 == 0)
+		{
+			if (m_pNumber)
+			{
+				m_pNumber->SetNum(nCount / 60);
+			}
+		}
+		break;
+
+	case CGame::GAMESTATE_NORMAL:
+
+		CCamera::MoveCamera(D3DXVECTOR3(SCREEN_SPEED, 0.0f, 0.0f));
+
+		// 敵の出現タイミング
+		this->EnemySpring();
+
+		CKeyboard *pKey = CManager::GetInputKeyboard();
+		CPad *pPad = CManager::GetInputPad();
+
+		// ポーズに切替
+		if (pKey->GetKeyboardTrigger(DIK_P) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_START))
+		{
+			if (!CRenderer::GetFade())
+			{
+				CManager::SetMode(CManager::MODE_PAUSE);
+			}
+		}
+#ifdef _DEBUG
+		if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
+		{
+			CRenderer::SetFade(CManager::MODE_RESULT);
+		}
+#endif
+		break;
+	}
+}
+
+//======================================================================================================================
+// 描画処理
+//======================================================================================================================
+void CGame::Draw()
+{
+
+}
+
+//======================================================================================================================
+// 弾の種類描画処理
+//======================================================================================================================
+void CGame::BulletTypeDisplay()
+{
 	CKeyboard *pKey = CManager::GetInputKeyboard();
 	CPad *pPad = CManager::GetInputPad();
 
@@ -111,36 +169,33 @@ void CGame::Update()
 		{
 			if (m_pWord[nCnt]->GetCollar().a == 1.0f)
 			{
-				m_pWord[nCnt]->SetCollar(TRANSPARENT_BULLET);
+				m_pWord[nCnt]->SetCollar(TYPEDISPLAY_BULLET);
 			}
-			else if (m_pWord[nCnt]->GetCollar().a == TRANSPARENT_BULLET.a)
+			else if (m_pWord[nCnt]->GetCollar().a == TYPEDISPLAY_BULLET.a)
 			{
 				m_pWord[nCnt]->SetCollar(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 			}
 		}
 	}
-
-	// ポーズに切替
-	if (pKey->GetKeyboardTrigger(DIK_P) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_START))
-	{
-		if (!CRenderer::GetFade())
-		{
-			CManager::SetMode(CManager::MODE_PAUSE);
-		}
-	}
-
-#ifdef _DEBUG
-	if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
-	{
-		CRenderer::SetFade(CManager::MODE_RESULT);
-	}
-#endif
 }
 
 //======================================================================================================================
-// 描画処理
+// 敵の出現処理
 //======================================================================================================================
-void CGame::Draw()
+void CGame::EnemySpring()
 {
-	
+	nCount++;
+
+	if (nCount % 400 == 0)
+	{
+		CEnemy::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::Random(100, 550), 0.0f), CEnemy::ENEMYTYPE_PART2, nCount / 500.0f);
+	}
+	if (nCount % 200 == 0)
+	{
+		CEnemy::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::Random(100, 550), 0.0f), CEnemy::ENEMYTYPE_PART3, 2.0f);
+	}
+	if (nCount % 100 == 0 || nCount % 125 == 0)
+	{
+		CEnemy::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::Random(100, 650), 0.0f), CEnemy::ENEMYTYPE_PART1, (float)CManager::Random(100, 200) / 100.0f);
+	}
 }

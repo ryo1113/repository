@@ -91,7 +91,7 @@ CPlayer *CPlayer::Create()
 void CPlayer::Init()
 {
 	SetSize(D3DXVECTOR3(150.0f, 70.0f, 0.0f));
-	SetPos(D3DXVECTOR3(200, 300, 0.0f));
+	SetPos(D3DXVECTOR3(300, 50, 0.0f));
 
 	CScene2D::Init();
 

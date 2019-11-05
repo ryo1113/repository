@@ -67,7 +67,10 @@ void CPause::Uninit()
 {
 	for (int nCnt = 0; nCnt < PAUSE_WORD; nCnt++)
 	{
-		m_pWord[nCnt]->Uninit();
+		if (m_pWord[nCnt])
+		{
+			m_pWord[nCnt]->Uninit();
+		}
 	}
 }
 

@@ -96,7 +96,7 @@ CEnemy *CEnemy::Create(D3DXVECTOR3 pos, ENEMYTYPE type, float fspeed)
 		{
 			pEnemy = new CEnemy;
 
-			pEnemy->SetPos(pos + D3DXVECTOR3((float)CManager::random(-100, 100), (float)CManager::random(-100, 100), 0.0f));
+			pEnemy->SetPos(pos + D3DXVECTOR3((float)CManager::Random(-100, 100), (float)CManager::Random(-100, 100), 0.0f));
 			pEnemy->m_Type = type;
 				  
 			pEnemy->Init();
@@ -149,7 +149,7 @@ void CEnemy::Init()
 		SetSize(D3DXVECTOR3(40.0f, 40.0f, 0.0f));
 		SetTextureAnimationTex(2, 4);
 
-		m_move = D3DXVECTOR3((float)CManager::random(-10, -2), (float)CManager::random(-5, 5), 0.0f);
+		m_move = D3DXVECTOR3((float)CManager::Random(-10, -2), (float)CManager::Random(-5, 5), 0.0f);
 	}
 
 	m_nTime = rand() % 360;

@@ -1,6 +1,6 @@
 //===========================================================================================================
 //
-// manager処理 [manager.h]
+// 管理処理 [manager.h]
 // Author:RYO KANDA
 //
 //===========================================================================================================
@@ -13,8 +13,7 @@
 #include "main.h"
 #include "sound.h"
 
-#include <time.h>
-#include <random>
+#include <Random>
 
 class CRenderer;
 
@@ -53,7 +52,7 @@ public:
 	void Update();
 	void Draw();
 
-	static int random(int min, int max);
+	static int Random(int min, int max);
 
 	static void SetSound(CSound::SOUND_LABEL label = CSound::SOUND_LABEL_SE_ENTER);
 
@@ -78,6 +77,9 @@ public:
 protected:
 
 private:
+	HRESULT TexLoad(HWND hWnd);
+	void TexUnload();
+
 	static MODE m_Mode;				// 現在のモード
 	static CModeBase *m_pMode;		// 現在のモードのポインタ
 	static CPause *m_pPause;		// ポーズ用

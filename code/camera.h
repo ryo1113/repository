@@ -1,48 +1,42 @@
 //======================================================================================================================
 //
-// 数字描画処理[number.h]
+// カメラ処理[camera.h]
 // Author:RYO KANDA
 //
 //======================================================================================================================
-#ifndef _NUMBER_H_
-#define _NUMBER_H_
+#ifndef _CAMERA_H_
+#define _CAMERA_H_
+
+//======================================================================================================================
+// インクルードファイル
+//======================================================================================================================
+#include "main.h"
 
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
+#define SCREEN_NUM			(5)
+#define SCREEN_SPEED		(-0.2f)
 
 //======================================================================================================================
 // クラス定義
 //======================================================================================================================
-class CNumber
+class CCamera
 {
 public:
-	CNumber();
-	~CNumber();
+	CCamera();
+	~CCamera();
 
-	static HRESULT Load();
-	static void Unload();
-	static CNumber *Create(D3DXVECTOR3 pos, D3DXVECTOR3 size);
+	static CCamera *Create();
 
-	void Init();
-	void Uninit();
-	void Update();
-	void Draw();
-
-	void SetNum(int num);
-
-	void SetColor(D3DXCOLOR col);
-	D3DXCOLOR GetColor();
+	void Init(void);
+	static void MoveCamera(D3DXVECTOR3 move);
+	static D3DXVECTOR3 *GetCamera();
 
 private:
-	static LPDIRECT3DTEXTURE9 m_pTexture;
-	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;
+	static D3DXVECTOR3 m_pos;
 
-	D3DXVECTOR3 m_pos;
-	D3DXVECTOR3 m_size;
-	D3DXCOLOR m_col;
-
-	int m_nNumber;
+	static int nScreenMax;
 };
 
 #endif

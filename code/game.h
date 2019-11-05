@@ -10,6 +10,7 @@
 #include "manager.h"
 
 class CWord;
+class CNumber;
 
 //======================================================================================================================
 // É}ÉNÉçíËã`
@@ -34,10 +35,22 @@ public:
 
 private:
 
+	enum GAMESTATE
+	{
+		GAMESTATE_PREPARATION,		// èÄîı
+		GAMESTATE_NORMAL,
+		GAMESTATE_MAX
+	};
+
+	void BulletTypeDisplay();
+	void EnemySpring();
+
 	CWord *m_pWord[BULLET_TYPE];
 
-	int g_nCounterGameState = 0;
-	float nColÉø;
+	CWord *m_pBg;
+	CNumber *m_pNumber;
+
+	GAMESTATE m_State;
 
 	int nCount;
 };

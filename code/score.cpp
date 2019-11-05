@@ -30,7 +30,7 @@ int CScore::m_nCntFlash = 0;
 float CScore::m_fFlashα = 1.0f / FLASH_CONT_RANK;
 
 // コンストラクタ
-CScore::CScore() : CScene::CScene(OBJTYPE_UI)
+CScore::CScore()
 {
 
 }
@@ -114,8 +114,6 @@ void CScore::Uninit()
 			}
 		}
 	}
-
-	this->Release();
 }
 
 //======================================================================================================================
@@ -131,24 +129,7 @@ void CScore::Update()
 //======================================================================================================================
 void CScore::Draw()
 {
-	for (int nCnt = 0; nCnt < MAX_DIGIT; nCnt++)
-	{
-		if (m_apNumber[nCnt])
-		{
-			m_apNumber[nCnt]->Draw();
-		}
-	}
 
-	for (int nCnt = 0; nCnt < RANKING_NUM; nCnt++)
-	{
-		for (int nCount = 0; nCount < MAX_DIGIT; nCount++)
-		{
-			if (m_nRanking[nCnt].m_apNumber[nCount])
-			{
-				m_nRanking[nCnt].m_apNumber[nCount]->Draw();
-			}
-		}
-	}
 }
 
 //======================================================================================================================

@@ -14,12 +14,11 @@
 // メンバ変数
 //======================================================================================================================
 D3DXVECTOR3 CCamera::m_pos = {};
-int CCamera::nScreenMax = 0;
+int CCamera::nScreenMax = -SCREEN_WIDTH * SCREEN_NUM;
 
 // コンストラクタ
 CCamera::CCamera()
 {
-	nScreenMax = -SCREEN_WIDTH * 3;
 }
 
 // デストラクタ

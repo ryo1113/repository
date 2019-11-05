@@ -19,9 +19,9 @@
 LPDIRECT3DTEXTURE9 CNumber::m_pTexture = {};
 
 // コンストラクタ
-CNumber::CNumber()
+CNumber::CNumber() : CScene::CScene(OBJTYPE_UI)
 {
-	m_nNumber = 0;
+
 }
 
 // デストラクタ
@@ -78,6 +78,7 @@ CNumber *CNumber::Create(D3DXVECTOR3 pos, D3DXVECTOR3 size)
 void CNumber::Init()
 {
 	m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	m_nNumber = 0;
 
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
@@ -90,10 +91,10 @@ void CNumber::Init()
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点情報の設定
-	pVtx[0].pos = D3DXVECTOR3((m_pos.x - m_size.x / 2), m_pos.y - m_size.y / 2, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3((m_pos.x + m_size.x / 2), m_pos.y - m_size.y / 2, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3((m_pos.x - m_size.x / 2), m_pos.y + m_size.y / 2, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3((m_pos.x + m_size.x / 2), m_pos.y + m_size.y / 2, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_size.x / 2, m_pos.y - m_size.y / 2, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_size.x / 2, m_pos.y - m_size.y / 2, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_size.x / 2, m_pos.y + m_size.y / 2, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_size.x / 2, m_pos.y + m_size.y / 2, 0.0f);
 
 	pVtx[0].rhw = 1.0f;
 	pVtx[1].rhw = 1.0f;
@@ -126,6 +127,8 @@ void CNumber::Uninit()
 		m_pVtxBuff->Release();
 		m_pVtxBuff = NULL;
 	}
+
+	this->Release();
 }
 
 //======================================================================================================================

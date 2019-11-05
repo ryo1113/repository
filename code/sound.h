@@ -50,11 +50,11 @@ private:
 	HRESULT CheckChunk(HANDLE hFile, DWORD format, DWORD *pChunkSize, DWORD *pChunkDataPosition);
 	HRESULT ReadChunkData(HANDLE hFile, void *pBuffer, DWORD dwBuffersize, DWORD dwBufferoffset);
 
-	IXAudio2 *m_pXAudio2 = NULL;								// XAudio2オブジェクトへのインターフェイス
-	IXAudio2MasteringVoice *m_pMasteringVoice = NULL;			// マスターボイス
-	IXAudio2SourceVoice *m_apSourceVoice[SOUND_LABEL_MAX] = {};	// ソースボイス
-	BYTE *m_apDataAudio[SOUND_LABEL_MAX] = {};					// オーディオデータ
-	DWORD m_aSizeAudio[SOUND_LABEL_MAX] = {};					// オーディオデータサイズ
+	IXAudio2 *m_pXAudio2 = {};										// XAudio2オブジェクトへのインターフェイス
+	IXAudio2MasteringVoice *m_pMasteringVoice = {};					// マスターボイス
+	IXAudio2SourceVoice *m_apSourceVoice[SOUND_LABEL_MAX] = {};		// ソースボイス
+	BYTE *m_apDataAudio[SOUND_LABEL_MAX] = {};						// オーディオデータ
+	DWORD m_aSizeAudio[SOUND_LABEL_MAX] = {};						// オーディオデータサイズ
 
 	// 各音素材のパラメータ
 	SOUNDPARAM m_aParam[SOUND_LABEL_MAX] =
@@ -67,7 +67,7 @@ private:
 		{ "data/SE/shot_01.wav",0 },			// ショット1
 		{ "data/SE/enemyhit.wav",0 },			// 敵ヒット
 		{ "data/SE/enter.wav",0 },				// エンター
-		{ "data/SE/pauseselect.wav"}			// 選択音
+		{ "data/SE/pauseselect.wav",0}			// 選択音
 	};
 };
 

@@ -1,13 +1,13 @@
 //======================================================================================================================
 //
-// 弾処理[bullet.h]
+// 数字描画処理[number.h]
 // Author:RYO KANDA
 //
 //======================================================================================================================
-#ifndef _BULLET_H_
-#define _BULLET_H_
+#ifndef _NUMBER_H_
+#define _NUMBER_H_
 
-#include "scene2D.h"
+#include "scene.h"
 
 //======================================================================================================================
 // マクロ定義
@@ -16,48 +16,37 @@
 //======================================================================================================================
 // クラス定義
 //======================================================================================================================
-class CBullet : public CScene2D
+class CNumber : public CScene
 {
 public:
-	CBullet();
-	~CBullet();
+	CNumber();
+	~CNumber();
 
-	enum BULLETTYPE
-	{
-		BULLETTYPE_NONE = 0,
-		BULLETTYPE_HOMING,
-		BULLETTYPE_MAX
-	};
+	void Vertex(VERTEX_2D *pVtx) {}
 
 	static HRESULT Load();
 	static void Unload();
-	static CBullet *Create(D3DXVECTOR3 pos, D3DXVECTOR3 move, BULLETTYPE type);
+	static CNumber *Create(D3DXVECTOR3 pos, D3DXVECTOR3 size);
 
 	void Init();
 	void Uninit();
 	void Update();
 	void Draw();
 
-	static void DrawAll();
+	void SetNum(int num);
 
-	static CScene *m_pBulletScene[];
+	void SetColor(D3DXCOLOR col);
+	D3DXCOLOR GetColor();
 
 private:
-	void MoveSpeed();
-	void TrackingBullet();
-
-	static bool GetShotNum();
-
 	static LPDIRECT3DTEXTURE9 m_pTexture;
-	static LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;
+	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;
 
-	D3DXVECTOR3 m_move;
+	D3DXVECTOR3 m_pos;
+	D3DXVECTOR3 m_size;
+	D3DXCOLOR m_col;
 
-	BULLETTYPE m_type;
-	int m_nCntLife;
-
-	static int m_nNumAll;
-	int m_nID;			// 自分の番号
+	int m_nNumber;
 };
 
 #endif
