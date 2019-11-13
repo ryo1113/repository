@@ -26,8 +26,6 @@ public:
 	CTutorial() {}
 	~CTutorial() {}
 
-	static CTutorial *Create();
-
 	void Init();
 	void Uninit();
 	void Update();

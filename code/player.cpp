@@ -149,7 +149,7 @@ void CPlayer::Update()
 		if (!pScene)
 			continue;
 
-		CEnemy *pEnemy = (CEnemy*)pScene;
+		CEnemyBase *pEnemy = (CEnemyBase*)pScene;
 
 		if (HitShapeCollision(pEnemy))
 		{
@@ -177,7 +177,7 @@ void CPlayer::HitPlayer()
 {
 	this->Uninit();
 
-	CRenderer::SetFade(CManager::MODE_RESULT);
+	CRenderer::SetFade(MODE_RESULT);
 }
 
 //======================================================================================================================

@@ -18,8 +18,6 @@ public:
 	CResult() {}
 	~CResult() {}
 
-	static CResult *Create();
-
 	void Init();
 	void Uninit();
 	void Update();

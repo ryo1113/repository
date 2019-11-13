@@ -26,6 +26,17 @@ class CPause;
 // マクロ定義
 //===========================================================================================================
 
+
+enum MODE
+{//画面モードの種類
+	MODE_TITLE = 0,
+	MODE_TUTORIAL,
+	MODE_GAME,
+	MODE_RESULT,
+	MODE_PAUSE,
+	MODE_MAX
+};
+
 //===========================================================================================================
 // クラス定義
 //===========================================================================================================
@@ -33,7 +44,9 @@ class CModeBase
 {
 public:
 	CModeBase() {}
-	~CModeBase() {}
+	virtual ~CModeBase() {}
+
+	static CModeBase *CreateMode(MODE mode);
 
 	virtual void Init() = 0;
 	virtual void Uninit() = 0;
@@ -61,17 +74,9 @@ public:
 	static CKeyboard *GetInputKeyboard();
 	static CPad *GetInputPad();
 
-	enum MODE
-	{//画面モードの種類
-		MODE_TITLE = 0,
-		MODE_TUTORIAL,
-		MODE_GAME,
-		MODE_RESULT,
-		MODE_PAUSE,
-		MODE_MAX
-	};
-
 	static void SetMode(MODE mode);
+	static void DeleteMode();
+
 	static MODE GetMode();
 
 protected:

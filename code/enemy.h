@@ -9,21 +9,18 @@
 
 #include "scene2D.h"
 
-class CEnemy;
-
 //======================================================================================================================
 // マクロ定義
 //======================================================================================================================
-#define PART3_NUM					(30)
 
 //======================================================================================================================
 // クラス定義
 //======================================================================================================================
-class CEnemy : public CScene2D
+class CEnemyBase : public CScene2D
 {
 public:
-	CEnemy();
-	~CEnemy();
+	CEnemyBase();
+	virtual ~CEnemyBase();
 
 	enum ENEMYTYPE
 	{
@@ -33,41 +30,79 @@ public:
 		ENEMYTYPE_MAX
 	};
 
-	enum ENEMYSTATE
-	{//自キャラ状態
-		ENEMYSTATE_NORMAL = 0,			//通常
-		ENEMYSTATE_DEATH,				//死んだとき
-		ENEMYSTATE_MAX
-	};
-
 	static HRESULT Load();
 	static void Unload();
-	static CEnemy *Create(D3DXVECTOR3 pos, ENEMYTYPE type, float fspeed = 1.0f);
 
-	void Init();
+	virtual void Init();
 	void Uninit();
-	void Update();
+	virtual void Update();
 	void Draw();
 
 	void HitEnemy(bool bscore = true);
+	ENEMYTYPE GetType();
+
 	static int GetNumEnemy();
 
-private:
-	void MoveSpeedEnemy();
-	void HitAllEnemy();
-
+protected:
 	D3DXVECTOR3 Vec3xVec3(const D3DXVECTOR3 A, const D3DXVECTOR3 B);
 
 	static LPDIRECT3DTEXTURE9 m_pTexture[];
 
-	static int nNumEnemy;
-
 	D3DXVECTOR3 m_move;
-	D3DXVECTOR3 m_rot;
 
 	ENEMYTYPE m_Type;
 	int m_nTime;
 	float m_fSpeed;
+
+private:
+	static int nNumEnemy;
+
+};
+
+class CEnemyHeli : public CEnemyBase
+{
+public:
+	CEnemyHeli() {}
+	~CEnemyHeli() {}
+
+	static CEnemyHeli *Create(D3DXVECTOR3 pos, float fspeed = 1.0f);
+
+	void Init();
+	void Update();
+
+private:
+
+};
+
+class CEnemyBird : public CEnemyBase
+{
+public:
+	CEnemyBird() {}
+	~CEnemyBird() {}
+
+	static CEnemyBird *Create(D3DXVECTOR3 pos, float fspeed = 1.0f);
+
+	void Init();
+	void Update();
+
+private:
+
+};
+
+class CEnemyVoid : public CEnemyBase
+{
+public:
+	CEnemyVoid() {}
+	~CEnemyVoid() {}
+
+	static CEnemyVoid *Create(D3DXVECTOR3 pos, float fspeed = 1.0f);
+
+	void Init();
+	void Update();
+
+private:
+	D3DXVECTOR3 m_moverot;
+
 };
 
 #endif

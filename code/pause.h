@@ -33,8 +33,6 @@ public:
 		PAUSE_STATE_QUIT
 	};
 
-	static CPause *Create();
-
 	void Init();
 	void Uninit();
 	void Update();

@@ -432,7 +432,9 @@ void CScene2D::SetVertexTex_Scroll(VERTEX_2D * pVtx)
 	pVtx[3].tex = D3DXVECTOR2(this->pMoveTex->x + 1.0f, this->pMoveTex->y + 1.0f);
 }
 
-
+//------------------------------------------------------------------------------
+// テクスチャの初期化
+//------------------------------------------------------------------------------
 void CScene2D::BindMoveTex(D3DXVECTOR3 * pMTex)
 {
 	this->pMoveTex = pMTex;

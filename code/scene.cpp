@@ -76,7 +76,7 @@ void CScene::ReleaseAll()
 
 void CScene::UpdateAll()
 {
-	if (CManager::GetMode() == CManager::MODE_PAUSE)
+	if (CManager::GetMode() == MODE_PAUSE)
 	{
 		for (int nCnt = 0; nCnt < MAX_2D; nCnt++)
 		{

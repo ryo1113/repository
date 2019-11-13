@@ -27,20 +27,6 @@
 CPause::PAUSE_STATE CPause::m_State = PAUSE_STATE_NONE;
 
 //======================================================================================================================
-// É^ÉCÉgÉãê∂ê¨
-//======================================================================================================================
-CPause *CPause::Create()
-{
-	CPause *pPause;
-
-	pPause = new CPause;
-
-	pPause->Init();
-
-	return pPause;
-}
-
-//======================================================================================================================
 // èâä˙âª
 //======================================================================================================================
 void CPause::Init()
@@ -138,15 +124,15 @@ void CPause::Update()
 
 			if (m_State == PAUSE_STATE_CONTINUE)
 			{
-				CManager::SetMode(CManager::MODE_GAME);
+				CManager::SetMode(MODE_GAME);
 			}
 			else if (m_State == PAUSE_STATE_RETRY)
 			{
-				CRenderer::SetFade(CManager::MODE_GAME);
+				CRenderer::SetFade(MODE_GAME);
 			}
 			else if (m_State == PAUSE_STATE_QUIT)
 			{
-				CRenderer::SetFade(CManager::MODE_TITLE);
+				CRenderer::SetFade(MODE_TITLE);
 			}
 		}
 	}

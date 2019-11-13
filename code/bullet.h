@@ -44,7 +44,8 @@ public:
 
 private:
 	void MoveSpeed();
-	void TrackingBullet();
+	D3DXVECTOR3 TrackingBullet();
+	D3DXVECTOR3 TrackingRot();
 
 	static bool GetShotNum();
 

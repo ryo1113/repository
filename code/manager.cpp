@@ -42,7 +42,7 @@ CKeyboard *CManager::m_pInputKeyboard = {};
 CPad *CManager::m_pInputPad = {};
 
 CModeBase *CManager::m_pMode = {};
-CManager::MODE CManager::m_Mode = {};
+MODE CManager::m_Mode = {};
 CPause *CManager::m_pPause = {};
 
 CSound *CManager::m_pSound = {};
@@ -179,6 +179,9 @@ void CManager::Update()
 	}
 }
 
+//======================================================================================================================
+// 描画処理
+//======================================================================================================================
 void CManager::Draw()
 {
 	m_pRenderer->Draw();
@@ -214,8 +217,49 @@ CPad *CManager::GetInputPad()
 //======================================================================================================================
 void CManager::SetMode(MODE mode)
 {
-	// ポーズに遷移しない時	コンテニューを押してない時
-	if (m_pMode && mode != MODE_PAUSE && CPause::GetPauseState() != CPause::PAUSE_STATE_CONTINUE)
+	// ポーズに遷移しない時
+	if (m_pMode && mode != MODE_PAUSE)
+	{
+		DeleteMode();
+	}
+
+	m_Mode = mode;
+
+	if (CPause::GetPauseState() != CPause::PAUSE_STATE_CONTINUE)
+	{
+		if (mode != MODE_PAUSE)
+		{
+			m_pMode = CModeBase::CreateMode(mode);
+			m_pMode->Init();
+		}
+		else
+		{
+			m_pPause = new CPause;
+			m_pPause->Init();
+		}
+	}
+	else
+	{// コンティニューを押したとき
+		CPause::SetPauseState(CPause::PAUSE_STATE_NONE);
+	}
+}
+
+//======================================================================================================================
+// モードの削除
+//======================================================================================================================
+void CManager::DeleteMode()
+{
+	if (m_pPause)
+	{
+		if (CPause::GetPauseState() == CPause::PAUSE_STATE_CONTINUE)
+		{
+			m_pPause->Uninit();
+		}
+		delete m_pPause;
+		m_pPause = NULL;
+	}
+	
+	if(CPause::GetPauseState() != CPause::PAUSE_STATE_CONTINUE)
 	{
 		m_pSound->StopSound();
 
@@ -225,54 +269,6 @@ void CManager::SetMode(MODE mode)
 
 		delete m_pMode;
 		m_pMode = NULL;
-	}
-
-	// 前がポーズの時
-	if (m_pPause && m_Mode == MODE_PAUSE)
-	{
-		if (CPause::GetPauseState() == CPause::PAUSE_STATE_CONTINUE)
-		{
-			m_pPause->Uninit();
-		}
-
-		delete m_pPause;
-		m_pPause = NULL;
-	}
-
-	m_Mode = mode;
-
-	if (mode == MODE_PAUSE || (!m_pPause && CPause::GetPauseState() != CPause::PAUSE_STATE_CONTINUE))
-	{
-		switch (mode)
-		{
-		case MODE_TITLE:
-			m_pMode = CTitle::Create();
-			CManager::SetSound(CSound::SOUND_LABEL_BGM000);
-			break;
-
-		case MODE_TUTORIAL:
-			m_pMode = CTutorial::Create();
-			CManager::SetSound(CSound::SOUND_LABEL_BGM001);
-			break;
-
-		case MODE_GAME:
-			m_pMode = CGame::Create();
-			CManager::SetSound(CSound::SOUND_LABEL_BGM002);
-			break;
-
-		case MODE_RESULT:
-			m_pMode = CResult::Create();
-			CManager::SetSound(CSound::SOUND_LABEL_BGM003);
-			break;
-
-		case MODE_PAUSE:
-			m_pPause = CPause::Create();
-			break;
-		}
-	}
-	else
-	{// コンテニューを押したとき
-		CPause::SetPauseState(CPause::PAUSE_STATE_NONE);
 	}
 }
 
@@ -306,7 +302,7 @@ HRESULT CManager::TexLoad(HWND hWnd)
 		MessageBox(hWnd, "テクスチャがありません", "Bg", MB_ICONWARNING);
 		return -1;
 	}
-	if (FAILED(CEnemy::Load()))
+	if (FAILED(CEnemyBase::Load()))
 	{
 		MessageBox(hWnd, "テクスチャがありません", "Enemy", MB_ICONWARNING);
 		return -1;
@@ -331,7 +327,7 @@ void CManager::TexUnload()
 {
 	CBullet::Unload();
 	CEffect::Unload();
-	CEnemy::Unload();
+	CEnemyBase::Unload();
 	CExplosion::Unload();
 	CPlayer::Unload();
 	CBg::Unload();
@@ -341,7 +337,7 @@ void CManager::TexUnload()
 //======================================================================================================================
 // モードの取得
 //======================================================================================================================
-CManager::MODE CManager::GetMode()
+MODE CManager::GetMode()
 {
 	return m_Mode;
 }
@@ -367,4 +363,38 @@ int CManager::Random(int min, int max)
 void CManager::SetSound(CSound::SOUND_LABEL label)
 {
 	m_pSound->PlaySound(label);
+}
+
+
+//======================================================================================================================
+// モードの生成
+//======================================================================================================================
+CModeBase * CModeBase::CreateMode(MODE mode)
+{
+	CModeBase *pMode = NULL;
+
+	switch (mode)
+	{
+	case MODE_TITLE:
+		pMode = new CTitle;
+		CManager::SetSound(CSound::SOUND_LABEL_BGM000);
+		break;
+
+	case MODE_TUTORIAL:
+		pMode = new CTutorial;
+		CManager::SetSound(CSound::SOUND_LABEL_BGM001);
+		break;
+
+	case MODE_GAME:
+		pMode = new CGame;
+		CManager::SetSound(CSound::SOUND_LABEL_BGM002);
+		break;
+
+	case MODE_RESULT:
+		pMode = new CResult;
+		CManager::SetSound(CSound::SOUND_LABEL_BGM003);
+		break;
+	}
+
+	return pMode;
 }

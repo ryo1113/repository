@@ -80,7 +80,7 @@ void CScore::Init()
 	m_nCntFlash = 0;
 	m_fFlashƒ¿ = 1.0f / FLASH_CONT_RANK;
 
-	if (CManager::GetMode() == CManager::MODE_GAME)
+	if (CManager::GetMode() == MODE_GAME)
 	{
 		m_nScore = 0;
 	}
@@ -91,7 +91,7 @@ void CScore::Init()
 //======================================================================================================================
 void CScore::Uninit()
 {
-	if (CManager::GetMode() == CManager::MODE_RESULT)
+	if (CManager::GetMode() == MODE_RESULT)
 	{
 		m_nScore = 0;
 	}

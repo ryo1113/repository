@@ -34,20 +34,6 @@
 //======================================================================================================================
 
 //======================================================================================================================
-// ƒQ[ƒ€¶¬
-//======================================================================================================================
-CGame *CGame::Create()
-{
-	CGame *pGame;
-
-	pGame = new CGame;
-
-	pGame->Init();
-
-	return pGame;
-}
-
-//======================================================================================================================
 // ‰Šú‰»ˆ—
 //======================================================================================================================
 void CGame::Init()
@@ -134,13 +120,13 @@ void CGame::Update()
 		{
 			if (!CRenderer::GetFade())
 			{
-				CManager::SetMode(CManager::MODE_PAUSE);
+				CManager::SetMode(MODE_PAUSE);
 			}
 		}
 #ifdef _DEBUG
 		if (pKey->GetKeyboardTrigger(DIK_RETURN) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_B))
 		{
-			CRenderer::SetFade(CManager::MODE_RESULT);
+			CRenderer::SetFade(MODE_RESULT);
 		}
 #endif
 		break;
@@ -188,14 +174,14 @@ void CGame::EnemySpring()
 
 	if (nCount % 400 == 0)
 	{
-		CEnemy::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::Random(100, 550), 0.0f), CEnemy::ENEMYTYPE_PART2, nCount / 500.0f);
+		CEnemyHeli::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::Random(100, 550), 0.0f), nCount / 500.0f);
 	}
 	if (nCount % 200 == 0)
 	{
-		CEnemy::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::Random(100, 550), 0.0f), CEnemy::ENEMYTYPE_PART3, 2.0f);
+		CEnemyVoid::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::Random(100, 550), 0.0f), 2.0f);
 	}
 	if (nCount % 100 == 0 || nCount % 125 == 0)
 	{
-		CEnemy::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::Random(100, 650), 0.0f), CEnemy::ENEMYTYPE_PART1, (float)CManager::Random(100, 200) / 100.0f);
+		CEnemyBird::Create(D3DXVECTOR3(1700.0f - CCamera::GetCamera()->x, (float)CManager::Random(100, 650), 0.0f), (float)CManager::Random(100, 200) / 100.0f);
 	}
 }

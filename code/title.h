@@ -18,8 +18,6 @@ public:
 	CTitle() {}
 	~CTitle() {}
 
-	static CTitle *Create();
-
 	void Init();
 	void Uninit();
 	void Update();

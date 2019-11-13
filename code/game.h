@@ -26,8 +26,6 @@ public:
 	CGame() {}
 	~CGame() {}
 
-	static CGame *Create();
-
 	void Init();
 	void Uninit();
 	void Update();

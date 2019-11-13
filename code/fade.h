@@ -28,9 +28,9 @@ public:
 		FADE_OUT,			// フェードアウト処理
 		FADE_MAX
 	};
-	static CFade *Create(CManager::MODE modeNext);
+	static CFade *Create(MODE modeNext);
 
-	void InitFade(CManager::MODE modeNext);
+	void InitFade(MODE modeNext);
 	void UninitFade();
 	void UpdateFade();
 	void DrawFade();
@@ -42,7 +42,7 @@ private:
 
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuffFade = NULL;		// 頂点バッファへのポインタ
 	FADE					m_fade;						// フェード状態
-	CManager::MODE			m_modeNext;					// 次の画面（モード）
+	MODE			m_modeNext;					// 次の画面（モード）
 	D3DXCOLOR				m_colorFade;				// フェード色
 };
 
