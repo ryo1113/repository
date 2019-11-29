@@ -179,7 +179,7 @@ void CGame::ScorePlusUI(D3DXVECTOR3 pos, D3DXCOLOR col, int plus)
 {
  	if ((int)m_Scoreplus.size() >= 5)
 	{
-		CGame::PlusUIDelete();
+		PlusUIDelete();
 	}
 
 	m_Scoreplus.push_back(CScorePlus::Create(pos, col, plus));
@@ -205,7 +205,7 @@ void CGame::BulletTypeDisplay()
 	CKeyboard *pKey = CManager::GetInputKeyboard();
 	CPad *pPad = CManager::GetInputPad();
 
-	if (pKey->GetKeyboardTrigger(DIK_LSHIFT) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_Y))
+	if (pKey->GetKeyboardTrigger(DIK_LSHIFT) || pKey->GetKeyboardTrigger(DIK_RSHIFT) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_Y))
 	{
 		for (int nCnt = 0; nCnt < BULLET_TYPE; nCnt++)
 		{

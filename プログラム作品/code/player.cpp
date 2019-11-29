@@ -99,7 +99,7 @@ void CPlayer::Init()
 }
 
 //======================================================================================================================
-// プレイヤの開放処理
+// 終了処理
 //======================================================================================================================
 void CPlayer::Uninit()
 {
@@ -297,7 +297,7 @@ void CPlayer::BulletShot()
 	CKeyboard *pKey = CManager::GetInputKeyboard();
 	CPad *pPad = CManager::GetInputPad();
 
-	if (pKey->GetKeyboardTrigger(DIK_LSHIFT) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_Y))
+	if (pKey->GetKeyboardTrigger(DIK_LSHIFT) || pKey->GetKeyboardTrigger(DIK_RSHIFT) || pPad->GetJoypadTrigger(0, CPad::JOYPADKEY_Y))
 	{
 		m_nType += 1;
 
